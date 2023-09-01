@@ -1,7 +1,10 @@
 const { Sequelize } = require('sequelize');
 
 const connect = async () => {
-    const sequelize = new Sequelize('basicproject2', 'root', '1234', {
+    const dbName = process.env.DATABASE_NAME;
+    const username = process.env.DATABASE_USER;
+    const password = process.env.DATABASE_PASSWORD;
+    const sequelize = new Sequelize(dbName, username, password, {
         host: 'localhost',
         dialect: "mariadb"
     });
