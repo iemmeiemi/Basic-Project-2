@@ -1,0 +1,26 @@
+{
+  "development": {
+    "username": "DATABASE_USERNAME",
+    "password": "DATABASE_PASSWORD",
+    "database": "DATABASE_NAME",
+    "host": "localhost",
+    "dialect": "mariadb",
+    "logging": false,
+    "timezone": "+07:00" ,
+    "use_env_variable": true
+  },
+  "test": {
+    "username": "root",
+    "password": null,
+    "database": "database_test",
+    "host": "127.0.0.1",
+    "dialect": "mariadb"
+  },
+  "production": {
+    "username": "root",
+    "password": null,
+    "database": "database_production",
+    "host": "127.0.0.1",
+    "dialect": "mariadb"
+  }
+}
