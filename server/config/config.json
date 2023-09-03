@@ -1,13 +1,12 @@
 {
   "development": {
-    "username": "DATABASE_USERNAME",
-    "password": "DATABASE_PASSWORD",
-    "database": "DATABASE_NAME",
+    "username": "root",
+    "password": "1234",
+    "database": "basicproject2",
     "host": "localhost",
     "dialect": "mariadb",
     "logging": false,
-    "timezone": "+07:00" ,
-    "use_env_variable": true
+    "timezone": "+07:00"
   },
   "test": {
     "username": "root",

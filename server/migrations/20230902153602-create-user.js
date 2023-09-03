@@ -1,10 +1,4 @@
 'use strict';
-
-// ==================================================================================
-// = ALL FILE Ở FOLDER MIGRATION KHÔNG ẢNH HƯỞNG GÌ TỚI CODE, NÓ NHƯ MỘT NHẬT KÍ ĐỂ
-// = XÓA CŨNG ĐƯỢC NHƯNG MÀ ĐỂ VẬY CHO ĐÚNG CHUẨN
-// ==================================================================================
-
 /** @type {import('sequelize-cli').Migration} */
 module.exports = {
   async up(queryInterface, Sequelize) {
