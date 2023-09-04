@@ -1,6 +1,11 @@
 const bcrypt = require('bcrypt');
+const jwt = require('jsonwebtoken');
 
 const { User } = require('../models');
+
+const hashPassword = (password) => bcrypt.hashSync(password, bcrypt.genSaltSync(10));
+const generateAccessToken = (id, email, role) => ('Bearer ' + jwt.sign({id, email, role}, process.env.JWT_SECRET, {expiresIn: '2d'}));
+const generateRefreshToken = (id, email) => jwt.sign({id, email}, process.env.JWT_SECRET, {expiresIn: '7d'});
 
 const register = (data) => new Promise(async (resolve, reject) => {
     try {
@@ -8,13 +13,34 @@ const register = (data) => new Promise(async (resolve, reject) => {
             where: {email: data.email},
             defaults: {
                 ...data,
-                password: bcrypt.hashSync(data.password, bcrypt.genSaltSync(10))
+                password: hashPassword(data.password)
             }
         });
-        
         resolve({
             success: !!response[1],
-            mes: response[1] ? 'Register is successfully' : 'Email is used'
+            mes: response[1] ? 'Register is successfully. Please go login!' : 'Email is used'
+        });
+    } catch (error) {
+        reject(error);
+    }
+})
+
+const login = ({email, password}) => new Promise(async (resolve, reject) => {
+    try {
+        const response = await User.findOne({
+            where: {
+                email
+            }
+        });
+        const isChecked = response && bcrypt.compareSync(password, response.password);
+        const accessToken = isChecked ? generateAccessToken(response.id, response.email, response.role) : null;
+        const refreshToken = isChecked ? generateRefreshToken(response.id, response.email) : null;
+        console.log(response);
+        resolve({
+            success: !!isChecked,
+            mes: isChecked ? 'Login is successfully' : 'Login failed',
+            accessToken,
+            refreshToken
         });
     } catch (error) {
         reject(error);
@@ -24,10 +50,9 @@ const register = (data) => new Promise(async (resolve, reject) => {
 const getUsers = () => new Promise(async (resolve, reject) => {
     try {
         const response = await User.findAll();
-        const users = response.map(user => user.dataValues);
         resolve({
-            success: users.length > 0,
-            rs: users.length > 0 ? users : 'No users found'
+            success: response.length > 0,
+            rs: response.length > 0 ? response : 'No users found'
         });
     } catch (error) {
         reject(error);
@@ -36,5 +61,6 @@ const getUsers = () => new Promise(async (resolve, reject) => {
 
 module.exports = {
     register,
+    login,
     getUsers
 }
