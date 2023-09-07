@@ -1,10 +1,10 @@
 {
   "development": {
-    "username": "root",
-    "password": "1234",
-    "database": "basicproject2",
-    "host": "localhost",
-    "dialect": "mariadb",
+    "username": "sql12644986",
+    "password": "YfmDPj9MJx",
+    "database": "sql12644986",
+    "host": "sql12.freesqldatabase.com",
+    "dialect": "mysql",
     "logging": false,
     "timezone": "+07:00"
   },
