@@ -19,6 +19,6 @@ routes.init(app);
 app.use('/', (req, res) => res.send('SERVER ON'));
 
 // Connect to database { force: true }
-db.sequelize.sync({ force: true }).then(req => {
+db.sequelize.sync().then(req => {
     app.listen(port, () => console.log('listening on port ' + port))
 })

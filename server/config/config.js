@@ -3,7 +3,7 @@ module.exports = {
       "username": process.env.DATABASE_USERNAME,
       "password": process.env.DATABASE_PASSWORD,
       "database": process.env.DATABASE_NAME,
-      "host": process.env.DATABAESE_HOST,
+      "host": "sql12.freesqldatabase.com",
       "dialect": process.env.DATABASE_DIALECT,
       "logging": false,
       dialectOptions: {

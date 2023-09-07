@@ -2,10 +2,9 @@ const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 
 const { User } = require('../models');
+const { generateAccessToken, generateRefreshToken } = require('../middlewares/jwt');
 
 const hashPassword = (password) => bcrypt.hashSync(password, bcrypt.genSaltSync(10));
-const generateAccessToken = (id, email, role) => ('Bearer ' + jwt.sign({id, email, role}, process.env.JWT_SECRET, {expiresIn: '2d'}));
-const generateRefreshToken = (id, email) => jwt.sign({id, email}, process.env.JWT_SECRET, {expiresIn: '7d'});
 
 const register = (data) => new Promise(async (resolve, reject) => {
     try {
@@ -33,18 +32,49 @@ const login = ({email, password}) => new Promise(async (resolve, reject) => {
             }
         });
         const isChecked = response && bcrypt.compareSync(password, response.password);
-        const accessToken = isChecked ? generateAccessToken(response.id, response.email, response.role) : null;
-        const refreshToken = isChecked ? generateRefreshToken(response.id, response.email) : null;
-        console.log(response);
-        resolve({
+        if (isChecked) {
+            const accessToken = generateAccessToken(response.id, response.email, response.role);
+            const refreshToken = generateRefreshToken(response.id, response.email);
+            await User.update({refreshToken}, {
+                where: {
+                    id: response.id
+                }
+            })
+            resolve({
+                success: isChecked,
+                mes: 'Login is successfully',
+                accessToken,
+                refreshToken
+            });
+
+        } else resolve ({
             success: !!isChecked,
-            mes: isChecked ? 'Login is successfully' : 'Login failed',
-            accessToken,
-            refreshToken
-        });
+            mes: 'Invalid credentials!'
+        })
     } catch (error) {
         reject(error);
     }
+})
+
+const getCurrent = ({id, email}) => new Promise(async (resolve, reject) => {
+    const response =  await User.findOne({
+        where: {id, email}
+    });
+    resolve({
+        success: !!response,
+        mes: response || 'User not found' 
+    })
+})
+
+const refreshAccessToken = (data) => new Promise(async (resolve, reject) => {
+    const response =  await User.findOne({
+        where: {id: data.id, email: data.email, refreshToken: data.refreshToken}
+    });
+    const newAccessToken = generateAccessToken(data.id, data.email, data.refreshAccessToken);
+    resolve({
+        success: !!response,
+        newAccessToken: response ? newAccessToken : 'Refresh token not matched' 
+    })
 })
 
 const getUsers = () => new Promise(async (resolve, reject) => {
@@ -62,5 +92,7 @@ const getUsers = () => new Promise(async (resolve, reject) => {
 module.exports = {
     register,
     login,
+    getCurrent,
+    refreshAccessToken,
     getUsers
 }
