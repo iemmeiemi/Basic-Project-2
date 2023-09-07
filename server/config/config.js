@@ -4,7 +4,7 @@ module.exports = {
       "password": process.env.DATABASE_PASSWORD,
       "database": process.env.DATABASE_NAME,
       "host": "sql12.freesqldatabase.com",
-      "dialect": process.env.DATABASE_DIALECT,
+      "dialect": "mysql",
       "logging": false,
       dialectOptions: {
         useUTC: false, //for reading from database
