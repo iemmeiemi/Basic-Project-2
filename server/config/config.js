@@ -3,8 +3,8 @@ module.exports = {
       "username": process.env.DATABASE_USERNAME,
       "password": process.env.DATABASE_PASSWORD,
       "database": process.env.DATABASE_NAME,
-      "host": "sql12.freesqldatabase.com",
-      "dialect": "mysql",
+      "host": process.env.DATABASE_HOST,
+      "dialect": "mariadb",
       "logging": false,
       dialectOptions: {
         useUTC: false, //for reading from database

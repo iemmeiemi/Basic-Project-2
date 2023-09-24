@@ -7,42 +7,44 @@ const joi_schema = require('../helps/joi_schema');
 const register = asyncHandler(async (req, res) => {
     const { firstName, lastName, email, password } = req.body;
     if (!firstName || !lastName || !email || !password) throw new Error('Missing inputs');
-    const error = joi_schema.validate({email, password})?.error;
-    if (error) throw new Error(error.details[0]?.message)
+    const error = joi_schema.validate({ email, password })?.error;
+    if (error) throw new Error(error.details[0]?.message);
     delete req.body.role;
     const response = await services.register(req.body);
-    return res.status(200).json(response)
-})
+    return res.status(200).json(response);
+});
 
 const login = asyncHandler(async (req, res) => {
     const { email, password } = req.body;
     if (!email || !password) throw new Error('Missing inputs');
     const response = await services.login(req.body);
-    const {refreshToken, ...rs} = response;
-    res.cookie('refreshToken', refreshToken, { httpOnly: true, maxAge: 7*24*60*60*1000 });
-    return res.status(200).json(rs)
-})
+    const { refreshToken, ...rs } = response;
+    res.cookie('refreshAccessToken', refreshToken, { httpOnly: true, maxAge: 7 * 24 * 60 * 60 * 1000 });
+    return res.status(200).json(rs);
+});
 
 const getCurrent = asyncHandler(async (req, res) => {
     const { id, email } = req.user;
     const response = await services.getCurrent({ id, email });
     return res.status(200).json(response);
-})
+});
 
 const refreshAccessToken = asyncHandler(async (req, res) => {
     const cookies = req.cookies;
     if (!cookies || !cookies.refreshToken) throw new Error('No refresh token in cookies');
     const decode = await jwt.verify(cookies.refreshToken, process.env.JWT_SECRET);
-    const response = await services.refreshAccessToken({...decode, refreshToken: cookies.refreshToken});
-    return res.status(200).json(response)
-})
+    const response = await services.refreshAccessToken({ ...decode, refreshToken: cookies.refreshToken });
+    return res.status(200).json(response);
+});
 
 // ===================================CONTINUE CODE  HERE============================
 const logout = asyncHandler(async (req, res) => {
     const cookies = req.cookies;
-// ...
-    res.clearCookie('refreshAccessToken', {httpOnly: true, secure: true});
-})
+    if (!cookies || !cookies.refreshAccessToken) throw new Error('No refresh token in cookies');
+    const response = await services.logout({ refreshToken: cookies.refreshAccessToken });
+    res.clearCookie('refreshAccessToken', { httpOnly: true, secure: true });
+    return res.status(200).json(response);
+});
 
 const getUsers = asyncHandler(async (req, res) => {
     const response = await services.getUsers();
@@ -56,4 +58,4 @@ module.exports = {
     getCurrent,
     logout,
     getUsers,
-}
+};
