@@ -4,7 +4,7 @@ const ctrls = require('../controllers/userController');
 const { verifyAccessToken, isAdmin } = require('../middlewares/verifyToken');
 
 router.post('/register', ctrls.register);
-router.get('/login', ctrls.login);
+router.post('/login', ctrls.login);
 router.get('/refreshaccesstoken', ctrls.refreshAccessToken);
 router.get('/forgotpassword', ctrls.forgotPassword);
 router.put('/resetpassword', ctrls.resetPassword);
