@@ -24,8 +24,8 @@ const login = asyncHandler(async (req, res) => {
 });
 
 const getCurrent = asyncHandler(async (req, res) => {
-    const { id, email } = req.user;
-    const response = await services.getCurrent({ id, email });
+    const { id } = req.user;
+    const response = await services.getCurrent({ id });
     return res.status(200).json(response);
 });
 
@@ -37,12 +37,25 @@ const refreshAccessToken = asyncHandler(async (req, res) => {
     return res.status(200).json(response);
 });
 
-// ===================================CONTINUE CODE  HERE============================
 const logout = asyncHandler(async (req, res) => {
     const cookies = req.cookies;
     if (!cookies || !cookies.refreshAccessToken) throw new Error('No refresh token in cookies');
     const response = await services.logout({ refreshToken: cookies.refreshAccessToken });
     res.clearCookie('refreshAccessToken', { httpOnly: true, secure: true });
+    return res.status(200).json(response);
+});
+
+const forgotPassword = asyncHandler(async (req, res) => {
+    const { email } = req.query;
+    if (!email) throw new Error('Missing inputs');
+    const response = await services.forgotPassword({ email });
+    return res.status(200).json(response);
+});
+
+const resetPassword = asyncHandler(async (req, res) => {
+    const { password, resetToken } = req.body;
+    if (!password || !resetToken) throw new Error('Missing inputs');
+    const response = await services.resetPassword({ password, resetToken });
     return res.status(200).json(response);
 });
 
@@ -57,5 +70,7 @@ module.exports = {
     refreshAccessToken,
     getCurrent,
     logout,
+    forgotPassword,
+    resetPassword,
     getUsers,
 };
