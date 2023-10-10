@@ -1,5 +1,5 @@
 const { notFound, errHandler } = require('../middlewares/errHandler')
-const userRouter = require('./user');
+const userRouter = require('./userRouter');
 
 const init = (app) => {
     

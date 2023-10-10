@@ -36,7 +36,7 @@ module.exports = (sequelize, DataTypes) => {
     refreshToken: DataTypes.STRING,
     passwordChangedAt: DataTypes.STRING,
     passwordResetToken: DataTypes.STRING,
-    passwordResetExprides: DataTypes.INTEGER,
+    passwordResetExprides: DataTypes.BIGINT,
   }, {
     sequelize,
     modelName: 'User',

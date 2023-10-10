@@ -3,8 +3,8 @@ module.exports = {
       "username": process.env.DATABASE_USERNAME,
       "password": process.env.DATABASE_PASSWORD,
       "database": process.env.DATABASE_NAME,
-      "host": process.env.DATABAESE_HOST,
-      "dialect": process.env.DATABASE_DIALECT,
+      "host": process.env.DATABASE_HOST,
+      "dialect": "postgres",
       "logging": false,
       dialectOptions: {
         useUTC: false, //for reading from database
