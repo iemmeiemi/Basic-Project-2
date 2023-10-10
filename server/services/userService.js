@@ -6,10 +6,12 @@ const { User } = require('../models');
 const hashPassword = (password) => bcrypt.hashSync(password, bcrypt.genSaltSync(10));
 const generateAccessToken = (id, email, role) => ('Bearer ' + jwt.sign({id, email, role}, process.env.JWT_SECRET, {expiresIn: '2d'}));
 const generateRefreshToken = (id, email) => jwt.sign({id, email}, process.env.JWT_SECRET, {expiresIn: '7d'});
+await jwt.verify(token, process.env.JWT_SECRET)
 
 const register = (data) => new Promise(async (resolve, reject) => {
     try {
-        const response = await User.findOrCreate({
+        // [user, isCreated]
+        const response = await User.findOrCreate({ 
             where: {email: data.email},
             defaults: {
                 ...data,
@@ -35,7 +37,6 @@ const login = ({email, password}) => new Promise(async (resolve, reject) => {
         const isChecked = response && bcrypt.compareSync(password, response.password);
         const accessToken = isChecked ? generateAccessToken(response.id, response.email, response.role) : null;
         const refreshToken = isChecked ? generateRefreshToken(response.id, response.email) : null;
-        console.log(response);
         resolve({
             success: !!isChecked,
             mes: isChecked ? 'Login is successfully' : 'Login failed',
