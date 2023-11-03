@@ -4,6 +4,8 @@ import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import { publicRoutes } from './routes';
 import { DefaultLayout } from './components/Layout';
 
+const SERVER_URL: string = process.env.REACT_APP_SERVER_URL ?? 'http://localhost:5000/';
+
 function App() {
     return (
         <Router>
