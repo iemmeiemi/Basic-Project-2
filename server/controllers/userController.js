@@ -7,6 +7,7 @@ const joi_schema = require('../helps/joi_schema');
 const register = asyncHandler(async (req, res) => {
     const { firstName, lastName, email, password } = req.body;
     if (!firstName || !lastName || !email || !password) throw new Error('Missing inputs');
+    req.body.fullName = firstName + ' ' + lastName;
     const error = joi_schema.validate({ email, password })?.error;
     if (error) throw new Error(error.details[0]?.message);
     delete req.body.role;
