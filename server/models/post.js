@@ -30,7 +30,16 @@ module.exports = (sequelize, DataTypes) => {
             },
             images: { type: DataTypes.ARRAY(DataTypes.STRING), defaultValue: [] },
             videos: { type: DataTypes.ARRAY(DataTypes.STRING), defaultValue: [] },
-            likes: { type: DataTypes.ARRAY(DataTypes.INTEGER), defaultValue: [] },
+            likes: {
+                type: DataTypes.ARRAY({
+                    type: DataTypes.INTEGER,
+                    references: {
+                        model: 'Users',
+                        key: 'id',
+                    },
+                }),
+                defaultValue: [],
+            },
             shareFrom: DataTypes.UUID,
             userId: {
                 type: DataTypes.INTEGER,
@@ -44,8 +53,8 @@ module.exports = (sequelize, DataTypes) => {
         {
             sequelize,
             modelName: 'Post',
-            timestamps: true, 
-            paranoid: true, 
+            timestamps: true,
+            paranoid: true,
         },
     );
     return Post;

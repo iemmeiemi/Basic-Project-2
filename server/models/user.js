@@ -33,6 +33,7 @@ module.exports = (sequelize, DataTypes) => {
                 defaultValue: 'https://img.hoidap247.com/picture/question/20200508/large_1588936738888.jpg',
             },
             email: { type: DataTypes.STRING, allowNull: false },
+            phone: DataTypes.STRING,
             password: { type: DataTypes.STRING, allowNull: false },
             refreshToken: DataTypes.STRING,
             passwordChangedAt: DataTypes.STRING,
@@ -40,7 +41,7 @@ module.exports = (sequelize, DataTypes) => {
             passwordResetExprides: DataTypes.BIGINT,
             interestedUsers: { type: DataTypes.ARRAY(DataTypes.INTEGER), defaultValue: [] },
             isBlocked: { type: DataTypes.BOOLEAN, defaultValue: false },
-            role: { type: DataTypes.ENUM(['user', 'admin']), defaultValue: 'user' },
+            role: { type: DataTypes.ENUM(['user', 'admin','influencer']), defaultValue: 'user' },
         },
         {
             sequelize,
