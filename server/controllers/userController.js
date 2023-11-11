@@ -19,9 +19,7 @@ const login = asyncHandler(async (req, res) => {
     const { email, password } = req.body;
     if (!email || !password) throw new Error('Missing inputs');
     const response = await services.login(req.body);
-    const { refreshToken, ...rs } = response;
-    res.cookie('refreshAccessToken', refreshToken, { httpOnly: true, maxAge: 7 * 24 * 60 * 60 * 1000 });
-    return res.status(200).json(rs);
+    return res.status(200).json(response);
 });
 
 const getCurrent = asyncHandler(async (req, res) => {

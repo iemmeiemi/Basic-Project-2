@@ -41,17 +41,19 @@ const login = ({ email, password }) =>
             if (isChecked) {
                 const accessToken = generateAccessToken(response.id, response.email, response.role);
                 const refreshToken = generateRefreshToken(response.id, response.email);
-                await User.update(
-                    { refreshToken },
-                    {
-                        where: {
-                            id: response.id,
-                        },
-                    },
-                );
+                // await User.update(
+                //     { refreshToken },
+                //     {
+                //         where: {
+                //             id: response.id,
+                //         },
+                //     },
+                // );
+                const { password, passwordChangedAt, passwordResetExprides, passwordResetToken, ...user } = response.dataValues;
                 resolve({
                     success: isChecked,
                     mes: 'Login is successfully',
+                    data: isChecked && user,
                     accessToken,
                     refreshToken,
                 });
@@ -67,10 +69,15 @@ const login = ({ email, password }) =>
 
 const getCurrent = ({ id }) =>
     new Promise(async (resolve, reject) => {
-        const response = await User.findByPk(id);
+        const response = await User.findByPk(id, {
+            attributes: {
+                exclude: ['password', 'passwordChangedAt', 'passwordResetExprides', 'passwordResetToken'],
+            },
+        });
         resolve({
             success: !!response,
-            mes: response || 'User not found',
+            mes: response ? 'Login is successfully' : 'User not found',
+            data: response || 'User not found',
         });
     });
 
