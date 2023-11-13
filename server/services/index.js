@@ -1,3 +1,5 @@
 module.exports = {
-    ...require('./userService')
+    ...require('./userService'),
+    ...require('./postService'),
+    
 }
