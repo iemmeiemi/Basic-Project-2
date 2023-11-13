@@ -8,10 +8,11 @@ import http from '~/utils/http';
 //     }
 // });
 
-export const login = (email: string, password: string) =>
+export const login = (email: string, password: string, remember: boolean) =>
     http.post<any>('api/user/login', {
         email,
         password,
+        remember
     });
 
 export const getCurrent = (accessToken: string) => {
@@ -20,4 +21,8 @@ export const getCurrent = (accessToken: string) => {
             Authorization: `Bearer ${accessToken}`,
         },
     });
+};
+
+export const refreshAccessToken = () => {
+    return http.get<any>('api/user/refreshaccesstoken');
 };

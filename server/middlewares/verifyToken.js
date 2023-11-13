@@ -23,7 +23,7 @@ const verifyAccessToken = asyncHandler((req, res, next) => {
 const verifyRefreshToken = asyncHandler((req, res, next) => {
     const cookies = req.cookies;
     if (!cookies || !cookies.refreshToken) throw new Error('No refresh token in cookies');
-    jwt.verify(refreshToken, process.env.JWT_SECRET, (err, decode) => {
+    jwt.verify(cookies.refreshToken, process.env.JWT_SECRET, (err, decode) => {
         if (err)
             return res.status(401).json({
                 success: false,

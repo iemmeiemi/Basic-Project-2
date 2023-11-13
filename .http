@@ -1,0 +1,2 @@
+GET http://localhost:5000/api/user/refreshaccesstoken
+Cookie: refreshToken=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MTY5OTYzNDczNywiZW1haWwiOiJlbWFpbEBnbWFpbC5jb20iLCJpYXQiOjE2OTk4OTAxMTMsImV4cCI6MTcwMjQ4MjExM30.alhZgaYiT0q8tSgGVGgx8R3rRl0zg0wSyHISHGVPoYE

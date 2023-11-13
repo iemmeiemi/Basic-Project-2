@@ -41,14 +41,14 @@ const login = ({ email, password }) =>
             if (isChecked) {
                 const accessToken = generateAccessToken(response.id, response.email, response.role);
                 const refreshToken = generateRefreshToken(response.id, response.email);
-                // await User.update(
-                //     { refreshToken },
-                //     {
-                //         where: {
-                //             id: response.id,
-                //         },
-                //     },
-                // );
+                await User.update(
+                    { refreshToken },
+                    {
+                        where: {
+                            id: response.id,
+                        },
+                    },
+                );
                 const { password, passwordChangedAt, passwordResetExprides, passwordResetToken, ...user } = response.dataValues;
                 resolve({
                     success: isChecked,
