@@ -41,13 +41,13 @@ module.exports = (sequelize, DataTypes) => {
             passwordResetExprides: DataTypes.BIGINT,
             interestedUsers: { type: DataTypes.ARRAY(DataTypes.INTEGER), defaultValue: [] },
             isBlocked: { type: DataTypes.BOOLEAN, defaultValue: false },
-            role: { type: DataTypes.ENUM(['user', 'admin','influencer']), defaultValue: 'user' },
+            role: { type: DataTypes.ENUM(['user', 'admin', 'influencer']), defaultValue: 'user' },
         },
         {
             sequelize,
             modelName: 'User',
             timestamps: true,
-            paranoid: true, 
+            paranoid: true,
         },
     );
     return User;
