@@ -5,7 +5,7 @@ const { Op } = require('sequelize');
 
 const { User } = require('../models');
 const { generateAccessToken, generateRefreshToken } = require('../middlewares/jwt');
-const sendMail = require('../ultils/sendMail');
+const sendMail = require('../utils/sendMail');
 const { log } = require('console');
 
 const hashPassword = (password) => bcrypt.hashSync(password, bcrypt.genSaltSync(10));
@@ -195,7 +195,9 @@ const getUsers = () =>
             const response = await User.findAll();
             resolve({
                 success: response.length > 0,
-                rs: response.length > 0 ? response : 'No users found',
+                mes: response.length > 0 ? "Successfully" : 'No users found',
+                data: response.length > 0 && response
+
             });
         } catch (error) {
             reject(error);

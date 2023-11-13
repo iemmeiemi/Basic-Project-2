@@ -8,4 +8,17 @@ const redis = new Redis({
     db: 0, // Defaults to 0
 });
 
+redis.on('error', (err) => console.log(err));
+redis.on('connect', (err) => {
+    if (err) console.log(err);
+    else console.log('Redis is connected');
+});
+redis.on('ready', () => {
+    console.log('Redis is ready');
+});
+redis.ping( (err, pong) => {
+    if (err) console.log(err);
+    else console.log(pong);
+});
+
 module.exports = redis;

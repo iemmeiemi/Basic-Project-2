@@ -19,7 +19,9 @@ const login = asyncHandler(async (req, res) => {
     const { email, password } = req.body;
     if (!email || !password) throw new Error('Missing inputs');
     const response = await services.login(req.body);
-    return res.status(200).json(response);
+    const { refreshToken, ...rs } = response;
+    res.cookie('refreshAccessToken', refreshToken, { httpOnly: true, maxAge: 30 * 24 * 60 * 60 * 1000 });
+    return res.status(200).json(rs);
 });
 
 const getCurrent = asyncHandler(async (req, res) => {
@@ -29,10 +31,8 @@ const getCurrent = asyncHandler(async (req, res) => {
 });
 
 const refreshAccessToken = asyncHandler(async (req, res) => {
-    const cookies = req.cookies;
-    if (!cookies || !cookies.refreshToken) throw new Error('No refresh token in cookies');
-    const decode = await jwt.verify(cookies.refreshToken, process.env.JWT_SECRET);
-    const response = await services.refreshAccessToken({ ...decode, refreshToken: cookies.refreshToken });
+    const decode = req.user;
+    const response = await services.refreshAccessToken({ ...decode, refreshToken: req.cookies.refreshToken });
     return res.status(200).json(response);
 });
 
