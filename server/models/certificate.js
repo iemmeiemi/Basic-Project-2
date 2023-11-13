@@ -1,7 +1,8 @@
 'use strict';
 const { Model } = require('sequelize');
+
 module.exports = (sequelize, DataTypes) => {
-    class PostComment extends Model {
+    class Certificate extends Model {
         /**
          * Helper method for defining associations.
          * This method is not a part of Sequelize lifecycle.
@@ -9,11 +10,11 @@ module.exports = (sequelize, DataTypes) => {
          */
         static associate(models) {
             // define association here
-            PostComment.belongsTo(models.Post, { foreignKey: 'postId', targetKey: 'id' });
-            PostComment.belongsTo(models.User, { foreignKey: 'userId', targetKey: 'id' });
+            Certificate.belongsTo(models.User, { foreignKey: 'receiverId', targetKey: 'id' });
+            Certificate.belongsTo(models.Activity, { foreignKey: 'activityId', targetKey: 'id' });
         }
     }
-    PostComment.init(
+    Certificate.init(
         {
             id: {
                 type: DataTypes.UUID,
@@ -21,40 +22,34 @@ module.exports = (sequelize, DataTypes) => {
                 allowNull: false,
                 defaultValue: DataTypes.UUIDV4,
             },
-            content: DataTypes.TEXT,
-            likes: {
-                type: DataTypes.ARRAY({
-                    type: DataTypes.INTEGER,
-                    references: {
-                        model: 'Users',
-                        key: 'id',
-                    },
-                }),
-                defaultValue: [],
+            description: {
+                type: DataTypes.TEXT,
+                allowNull: false,
             },
-            postId: {
+            type: {
+                type: DataTypes.STRING,
+                allowNull: false,
+            },
+            activityAt: DataTypes.DATEONLY,
+            receiverId: {
+                type: DataTypes.INTEGER,
+                allowNull: false,
+            },
+            activityId: {
                 type: DataTypes.UUID,
                 allowNull: false,
                 references: {
-                    model: 'Posts',
-                    key: 'id',
-                },
-            },
-            userId: {
-                type: DataTypes.INTEGER,
-                allowNull: false,
-                references: {
-                    model: 'Users',
+                    model: 'Activities',
                     key: 'id',
                 },
             },
         },
         {
             sequelize,
-            modelName: 'PostComment',
+            modelName: 'Certificate',
             timestamps: true,
             paranoid: true,
         },
     );
-    return PostComment;
+    return Certificate;
 };

@@ -1,7 +1,8 @@
 'use strict';
 const { Model } = require('sequelize');
+
 module.exports = (sequelize, DataTypes) => {
-    class Organization extends Model {
+    class Forum extends Model {
         /**
          * Helper method for defining associations.
          * This method is not a part of Sequelize lifecycle.
@@ -9,10 +10,11 @@ module.exports = (sequelize, DataTypes) => {
          */
         static associate(models) {
             // define association here
-            Organization.belongsTo(models.User, { foreignKey: 'ownerId', targetKey: 'id' });
+            Forum.belongsTo(models.Organization, { foreignKey: 'OrganizationId', targetKey: 'id' });
+            Forum.belongsTo(models.User, { foreignKey: 'ownerId', targetKey: 'id' });
         }
     }
-    Organization.init(
+    Forum.init(
         {
             id: {
                 type: DataTypes.UUID,
@@ -24,19 +26,27 @@ module.exports = (sequelize, DataTypes) => {
                 type: DataTypes.STRING,
                 allowNull: false,
             },
+            description: DataTypes.STRING,
             avatar: {
                 type: DataTypes.STRING,
                 allowNull: false,
                 defaultValue: 'https://img.hoidap247.com/picture/question/20200508/large_1588936738888.jpg',
             },
-            groupType: {
-                type: DataTypes.ENUM(['Community', 'Company', 'Club', 'Group', 'Shcool']),
-                allowNull: false,
-                defaultValue: 'Community',
+            role: {
+                type: DataTypes.ENUM(['owner','admin','member']),
+                defaultValue: 'member',
             },
+            // NẾU DO TỔ CHỨC TẠO THÌ:
+            OrganizationId: { 
+                type: DataTypes.UUID,
+                references: {
+                    model: 'Organizations',
+                    key: 'id',
+                },
+            },
+            // NẾU DO CÁ NHÂN NGƯỜI DÙNG TẠO THÌ:
             ownerId: {
                 type: DataTypes.INTEGER,
-                allowNull: false,
                 references: {
                     model: 'Users',
                     key: 'id',
@@ -45,10 +55,10 @@ module.exports = (sequelize, DataTypes) => {
         },
         {
             sequelize,
-            modelName: 'Organization',
+            modelName: 'Forum',
             timestamps: true,
-            paranoid: true,
+            paranoid: true, 
         },
     );
-    return Organization;
+    return Forum;
 };

@@ -33,6 +33,7 @@ module.exports = (sequelize, DataTypes) => {
                 defaultValue: 'https://img.hoidap247.com/picture/question/20200508/large_1588936738888.jpg',
             },
             email: { type: DataTypes.STRING, allowNull: false },
+            phone: DataTypes.STRING,
             password: { type: DataTypes.STRING, allowNull: false },
             refreshToken: DataTypes.STRING,
             passwordChangedAt: DataTypes.STRING,

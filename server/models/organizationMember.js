@@ -1,7 +1,8 @@
 'use strict';
 const { Model } = require('sequelize');
+
 module.exports = (sequelize, DataTypes) => {
-    class PostComment extends Model {
+    class OrganizationMember extends Model {
         /**
          * Helper method for defining associations.
          * This method is not a part of Sequelize lifecycle.
@@ -9,52 +10,41 @@ module.exports = (sequelize, DataTypes) => {
          */
         static associate(models) {
             // define association here
-            PostComment.belongsTo(models.Post, { foreignKey: 'postId', targetKey: 'id' });
-            PostComment.belongsTo(models.User, { foreignKey: 'userId', targetKey: 'id' });
+            OrganizationMember.belongsTo(models.Organization, { foreignKey: 'OrganizationId', targetKey: 'id' });
+            OrganizationMember.belongsTo(models.User, { foreignKey: 'memberId', targetKey: 'id' });
         }
     }
-    PostComment.init(
+    OrganizationMember.init(
         {
-            id: {
+            OrganizationId: {
                 type: DataTypes.UUID,
                 primaryKey: true,
                 allowNull: false,
-                defaultValue: DataTypes.UUIDV4,
-            },
-            content: DataTypes.TEXT,
-            likes: {
-                type: DataTypes.ARRAY({
-                    type: DataTypes.INTEGER,
-                    references: {
-                        model: 'Users',
-                        key: 'id',
-                    },
-                }),
-                defaultValue: [],
-            },
-            postId: {
-                type: DataTypes.UUID,
-                allowNull: false,
                 references: {
-                    model: 'Posts',
+                    model: 'Organizations',
                     key: 'id',
                 },
             },
-            userId: {
+            memberId: {
                 type: DataTypes.INTEGER,
+                primaryKey: true,
                 allowNull: false,
                 references: {
                     model: 'Users',
                     key: 'id',
                 },
             },
+            role: {
+                type: DataTypes.ENUM(['admin','member']),
+                defaultValue: 'member',
+            }
         },
         {
             sequelize,
-            modelName: 'PostComment',
+            modelName: 'OrganizationMember',
             timestamps: true,
-            paranoid: true,
+            paranoid: true, 
         },
     );
-    return PostComment;
+    return OrganizationMember;
 };

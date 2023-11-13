@@ -1,7 +1,8 @@
 'use strict';
 const { Model } = require('sequelize');
+
 module.exports = (sequelize, DataTypes) => {
-    class Organization extends Model {
+    class Activity extends Model {
         /**
          * Helper method for defining associations.
          * This method is not a part of Sequelize lifecycle.
@@ -9,10 +10,9 @@ module.exports = (sequelize, DataTypes) => {
          */
         static associate(models) {
             // define association here
-            Organization.belongsTo(models.User, { foreignKey: 'ownerId', targetKey: 'id' });
         }
     }
-    Organization.init(
+    Activity.init(
         {
             id: {
                 type: DataTypes.UUID,
@@ -24,31 +24,25 @@ module.exports = (sequelize, DataTypes) => {
                 type: DataTypes.STRING,
                 allowNull: false,
             },
-            avatar: {
+            description: {
+                type: DataTypes.TEXT,
+                allowNull: false,
+            },
+            type: {
                 type: DataTypes.STRING,
                 allowNull: false,
-                defaultValue: 'https://img.hoidap247.com/picture/question/20200508/large_1588936738888.jpg',
             },
-            groupType: {
-                type: DataTypes.ENUM(['Community', 'Company', 'Club', 'Group', 'Shcool']),
+            certificateName: {
+                type: DataTypes.STRING,
                 allowNull: false,
-                defaultValue: 'Community',
-            },
-            ownerId: {
-                type: DataTypes.INTEGER,
-                allowNull: false,
-                references: {
-                    model: 'Users',
-                    key: 'id',
-                },
             },
         },
         {
             sequelize,
-            modelName: 'Organization',
+            modelName: 'Activity',
             timestamps: true,
             paranoid: true,
         },
     );
-    return Organization;
+    return Activity;
 };

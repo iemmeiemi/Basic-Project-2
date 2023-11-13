@@ -1,6 +1,7 @@
 const express = require('express');
 const cookieParser = require('cookie-parser');
 const { createServer } = require('http');
+const cors = require('cors')
 require('dotenv').config();
 
 const db = require('./models');
@@ -16,6 +17,12 @@ socket.startServer(httpServer);
 app.use(cookieParser());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
+app.use(
+    cors({
+      origin: 'http://localhost:3000',
+      credentials: true,
+    })
+  )
 
 routes.init(app);
 
