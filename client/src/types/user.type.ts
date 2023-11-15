@@ -11,7 +11,6 @@ export interface User {
     interestedUsers: Array<number>;
     isBlocked: boolean;
     role: string;
-    refreshToken?: string;
 }
 
 export type Users = Pick<User, 'id' | 'fullName' | 'avatar'>[];

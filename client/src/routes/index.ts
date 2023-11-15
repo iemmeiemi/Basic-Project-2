@@ -14,7 +14,7 @@ interface RouteType {
 const publicRoutes: RouteType[] = [
     // { path: '/', component: Home, layout: DefaultLayout },
     { path: '/signin', component: SignIn, layout: null },
-    { path: '/signup', component: SignUp },
+    { path: '/signup', component: SignUp, layout: null },
 ];
 
 const privateRoutes: RouteType[] = [];

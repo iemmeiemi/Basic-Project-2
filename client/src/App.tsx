@@ -1,18 +1,27 @@
 import { Fragment, useContext } from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
+import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
+import '@fortawesome/fontawesome-free/css/all.min.css';
+import 'flowbite';
 
 import { publicRoutes } from './routes';
 import { DefaultLayout } from './components/Layout';
 import { AuthContext } from './context/AuthContext';
 import Home from './pages/Home';
-import '@fortawesome/fontawesome-free/css/all.min.css';
-import 'flowbite';
 
 const SERVER_URL: string = process.env.REACT_APP_SERVER_URL ?? 'http://localhost:5000/';
 
 function App() {
     const { currentUser } = useContext(AuthContext);
-    
+    window.addEventListener('offline', function(){
+        toast.error('Network error',{
+            autoClose: 5000,
+        })
+    })
+    window.addEventListener('online', function(){
+        toast.success('Connected network')
+    })
     return (
         <Router>
             <div className="App h-screen bg-[#e9e9e9] dark:bg-black dark:bg-opacity-80 overflow-hidden">
@@ -48,6 +57,7 @@ function App() {
                         );
                     })}
                 </Routes>
+                <ToastContainer autoClose={3000} />
             </div>
         </Router>
     );

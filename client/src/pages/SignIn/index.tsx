@@ -1,11 +1,9 @@
-import { useQuery } from '@tanstack/react-query';
 import { useContext, useState } from 'react';
-import { Link, Navigate, useSearchParams } from 'react-router-dom';
+import { Link, Navigate } from 'react-router-dom';
 
 import { AuthContext } from '~/context/AuthContext';
-import { useQueryString } from '~/utils/util';
 
-function Signin() {
+function SignIn() {
     const { currentUser, loginAccount } = useContext(AuthContext);
     const [inputs, setInputs] = useState({ email: '', password: '', remember: false });
     const login = (e: any) => {
@@ -79,7 +77,6 @@ function Signin() {
                                                     id="remember"
                                                     aria-describedby="remember"
                                                     name="remember"
-                                                    value={inputs.email}
                                                     onChange={(e) => handleInputsChange(e)}
                                                     type="checkbox"
                                                     className="w-4 h-4 border border-gray-300 rounded bg-gray-50  dark:bg-gray-700 dark:border-gray-600 focus:ring-0"
@@ -104,12 +101,12 @@ function Signin() {
                                     </button>
                                     <p className="text-sm font-light text-gray-500 dark:text-gray-400">
                                         Don’t have an account yet?{' '}
-                                        <a
-                                            href="#"
+                                        <Link
+                                            to="/signup"
                                             className="font-medium text-text hover:underline dark:text-gray-300"
                                         >
                                             Sign up
-                                        </a>
+                                        </Link>
                                     </p>
                                 </form>
                             </div>
@@ -121,4 +118,4 @@ function Signin() {
     );
 }
 
-export default Signin;
+export default SignIn;

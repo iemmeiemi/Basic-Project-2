@@ -23,6 +23,16 @@ export const getCurrent = (accessToken: string) => {
     });
 };
 
+export const register = (inputs: any) => {
+    http.post<any>('api/user/register', {
+        firstName: inputs.firstName,
+        lastName: inputs.lastName,
+        birthday: inputs.birthday,
+        email: inputs.email,
+        password: inputs.password,
+    });
+}
+
 export const refreshAccessToken = () => {
     return http.get<any>('api/user/refreshaccesstoken');
 };
