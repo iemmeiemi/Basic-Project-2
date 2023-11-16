@@ -1,15 +1,19 @@
 const asyncHandler = require('express-async-handler');
 const services = require('../services');
 //const joi_schema = require('../helps/joi_schema');
+const pagi = require('../helps/pagination');
 
 //all post & pagination, sort, limit
 const getAllPost = asyncHandler(async (req, res) => {
-    const response = await services.getAllPost(req.body);
+    const { page, size, userId } = req.query;
+    const { limit, offset } = pagi.getPagination(page, size);
+    const pack = { page, limit, offset, userId };
+    const response = await services.getAllPost(pack);
     return res.status(200).json(response);
 });
 
 const getAPost = asyncHandler(async (req, res) => {
-    const response = await services.getAPost(req.query);
+    const response = await services.getAPost(req.params.id);
     return res.status(200).json(response);
 });
 
@@ -18,9 +22,11 @@ const getDeletedPost = asyncHandler(async (req, res) => {
     return res.status(200).json(response);
 });
 
+
+
 /**************** Create & Restore ******************/
 const createNewPost = asyncHandler(async (req, res) => {
-    if (Object.keys(req.body).length === 0 ) {
+    if (Object.keys(req.body).length === 0 || req.body[0] == null) {
         throw new Error('Please input something!');
     }
 
@@ -40,19 +46,21 @@ const createNewPost = asyncHandler(async (req, res) => {
 });
 
 const restoreDeletePost = asyncHandler(async (req, res) => {
-    const response = await services.restoreDeletePost(req.params.id);
+    const response = await services.restoreDeletePost(req.params.id, req.user.id);
     return res.status(200).json(response);
 });
 
-
 /************ Update *************/
 //edit content of the post (only the caption and viewer type)
-//chưa ràng buộc user (1 là ràng buộc logic client, 2 là server)
 const editPost = asyncHandler(async (req, res) => {
-    if (req.body) {
-        console.log("req.body: " + req.body.caption + ', pid: ' + req.params.id);
-    } else {
-        console.log('nothing');
+    if (Object.keys(req.body).length === 0 || Object.values(req.body).some((value) => value === '' || value === null)) {
+        throw new Error('Please input something!');
+    }
+
+    const { caption, postViewer, hashTag, ...rest } = req.body;
+    console.log(rest.length);
+    if (Object.keys(rest).length !== 0) {
+        throw new Error('Cannot edit these fields!');
     }
 
     const response = await services.editPost(req.params.id, req.body);
@@ -62,12 +70,9 @@ const editPost = asyncHandler(async (req, res) => {
 /************ Delete *************/
 //soft delete a post, user can restore
 const deletePost = asyncHandler(async (req, res) => {
-
-    const response = await services.deletePost(req.params.id);
+    const response = await services.deletePost(req.params.id, req.user.id);
     return res.status(200).json(response);
 });
-
-
 
 module.exports = {
     getAllPost,
@@ -77,5 +82,4 @@ module.exports = {
     editPost,
     deletePost,
     restoreDeletePost,
-
 };

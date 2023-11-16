@@ -1,2 +1,7 @@
 /node_modules
+/uploads/images
 .env
+.png 
+.jpg 
+.jpeg 
+.mp4
