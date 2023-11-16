@@ -5,21 +5,23 @@ const services = require('../services');
 const joi_schema = require('../helps/joi_schema');
 
 const register = asyncHandler(async (req, res) => {
-    const { firstName, lastName, email, password } = req.body;
-    if (!firstName || !lastName || !email || !password) throw new Error('Missing inputs');
-    req.body.fullName = firstName + ' ' + lastName;
+    const { firstName, lastName, email, password, birthday, gender } = req.body;
+    if (!firstName || !lastName || !email || !password || !birthday) throw new Error('Missing inputs');
+    fullName = firstName + ' ' + lastName;
     const error = joi_schema.validate({ email, password })?.error;
     if (error) throw new Error(error.details[0]?.message);
     delete req.body.role;
-    const response = await services.register(req.body);
+    const response = await services.register({firstName, lastName, fullName, email, password, birthday});
     return res.status(200).json(response);
 });
 
 const login = asyncHandler(async (req, res) => {
-    const { email, password } = req.body;
+    const { email, password, remember } = req.body;
     if (!email || !password) throw new Error('Missing inputs');
     const response = await services.login(req.body);
-    return res.status(200).json(response);
+    const { refreshToken, ...rs } = response;
+    if (remember) res.cookie('refreshToken', refreshToken, { httpOnly: true, maxAge: 30 * 24 * 60 * 60 * 1000 });
+    return res.status(200).json(rs);
 });
 
 const getCurrent = asyncHandler(async (req, res) => {
@@ -29,10 +31,9 @@ const getCurrent = asyncHandler(async (req, res) => {
 });
 
 const refreshAccessToken = asyncHandler(async (req, res) => {
-    const cookies = req.cookies;
-    if (!cookies || !cookies.refreshToken) throw new Error('No refresh token in cookies');
-    const decode = await jwt.verify(cookies.refreshToken, process.env.JWT_SECRET);
-    const response = await services.refreshAccessToken({ ...decode, refreshToken: cookies.refreshToken });
+    
+    const decode = req.user;
+    const response = await services.refreshAccessToken({ ...decode, refreshToken: req.cookies.refreshToken });
     return res.status(200).json(response);
 });
 

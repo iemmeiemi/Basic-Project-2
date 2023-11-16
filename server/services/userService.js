@@ -1,18 +1,18 @@
 const bcrypt = require('bcrypt');
 const crypto = require('crypto');
-const jwt = require('jsonwebtoken');
 const { Op } = require('sequelize');
 
-const { User } = require('../models');
+const { User, Account } = require('../models');
 const { generateAccessToken, generateRefreshToken } = require('../middlewares/jwt');
-const sendMail = require('../ultils/sendMail');
-const { log } = require('console');
+const sendMail = require('../utils/sendMail');
 
 const hashPassword = (password) => bcrypt.hashSync(password, bcrypt.genSaltSync(10));
 
 const register = (data) =>
     new Promise(async (resolve, reject) => {
         try {
+            const { birthday } = data;
+            console.log(birthday);
             const response = await User.findOrCreate({
                 where: { email: data.email },
                 defaults: {
@@ -20,6 +20,23 @@ const register = (data) =>
                     password: hashPassword(data.password),
                 },
             });
+            if (response[1]) {
+                const responseUser = await User.findOne({
+                    where: {
+                        email: data.email
+                    },
+                    attributes: {
+                        exclude: ['passwordChangedAt', 'passwordResetExprides', 'passwordResetToken', 'refreshToken'],
+                    },
+                });
+                await Account.findOrCreate({
+                    where: { id: responseUser.id },
+                    defaults: {
+                        id: responseUser.id,
+                        birthday
+                    },
+                });
+            }
             resolve({
                 success: !!response[1],
                 mes: response[1] ? 'Register is successfully. Please go login!' : 'Email is used',
@@ -36,20 +53,23 @@ const login = ({ email, password }) =>
                 where: {
                     email,
                 },
+                attributes: {
+                    exclude: ['passwordChangedAt', 'passwordResetExprides', 'passwordResetToken', 'refreshToken'],
+                },
             });
             const isChecked = response && bcrypt.compareSync(password, response.password);
             if (isChecked) {
                 const accessToken = generateAccessToken(response.id, response.email, response.role);
                 const refreshToken = generateRefreshToken(response.id, response.email);
-                // await User.update(
-                //     { refreshToken },
-                //     {
-                //         where: {
-                //             id: response.id,
-                //         },
-                //     },
-                // );
-                const { password, passwordChangedAt, passwordResetExprides, passwordResetToken, ...user } = response.dataValues;
+                await User.update(
+                    { refreshToken },
+                    {
+                        where: {
+                            id: response.id,
+                        },
+                    },
+                );
+                const { password, ...user } = response.dataValues;
                 resolve({
                     success: isChecked,
                     mes: 'Login is successfully',
@@ -71,7 +91,13 @@ const getCurrent = ({ id }) =>
     new Promise(async (resolve, reject) => {
         const response = await User.findByPk(id, {
             attributes: {
-                exclude: ['password', 'passwordChangedAt', 'passwordResetExprides', 'passwordResetToken'],
+                exclude: [
+                    'password',
+                    'passwordChangedAt',
+                    'passwordResetExprides',
+                    'passwordResetToken',
+                    'refreshToken',
+                ],
             },
         });
         resolve({
@@ -192,10 +218,21 @@ const resetPassword = ({ password, resetToken }) =>
 const getUsers = () =>
     new Promise(async (resolve, reject) => {
         try {
-            const response = await User.findAll();
+            const response = await User.findAll({
+                attributes: {
+                    exclude: [
+                        'password',
+                        'passwordChangedAt',
+                        'passwordResetExprides',
+                        'passwordResetToken',
+                        'refreshToken',
+                    ],
+                },
+            });
             resolve({
                 success: response.length > 0,
-                rs: response.length > 0 ? response : 'No users found',
+                mes: response.length > 0 ? 'Successfully' : 'No users found',
+                data: response.length > 0 && response,
             });
         } catch (error) {
             reject(error);

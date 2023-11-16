@@ -10,7 +10,7 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 const root = ReactDOM.createRoot(document.getElementById('root') as HTMLElement);
 const queryClient = new QueryClient();
 root.render(
-    <React.StrictMode>
+    // <React.StrictMode>
         <GlobalStyles>
             <DarkModeContextProvider>
                 <QueryClientProvider client={queryClient}>
@@ -20,7 +20,7 @@ root.render(
                 </QueryClientProvider>
             </DarkModeContextProvider>
         </GlobalStyles>
-    </React.StrictMode>,
+    // </React.StrictMode>,
 );
 
 // If you want to start measuring performance in your app, pass a function

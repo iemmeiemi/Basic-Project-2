@@ -1,7 +1,8 @@
-import { useQuery } from '@tanstack/react-query';
+// import { useQuery } from '@tanstack/react-query';
 import { createContext, useEffect, useLayoutEffect, useState } from 'react';
+import { toast } from 'react-toastify';
 
-import { getCurrent, login } from '~/apis/auth.api';
+import { getCurrent, login, refreshAccessToken } from '~/apis/auth.api';
 import { User } from '~/types/user.type';
 // import { useQueryString } from '~/utils/util';
 
@@ -13,14 +14,14 @@ const AuthContextProvider = ({ children }: any) => {
 
     const loginAccount = async (inputs: any) => {
         try {
-            const { data } = await login(inputs.email, inputs.password);
+            const { data } = await login(inputs.email, inputs.password, inputs.remember);
             if (data?.success && inputs.remember) {
                 localStorage.setItem('accessToken', JSON.stringify(data.accessToken));
-                localStorage.setItem('refreshToken', JSON.stringify(data.refreshToken));
-            } else console.log(data);
-
+            }
+            data?.success ? toast.success('Login successful') : toast.error(data?.mes);
             data?.success && setCurrentUser(data?.data);
         } catch (error: any) {
+            toast.error(error?.message);
             console.log('err:', error?.response?.data);
         }
     };
@@ -28,16 +29,19 @@ const AuthContextProvider = ({ children }: any) => {
         try {
             const accessToken = localStorage.getItem('accessToken') || 'null';
             const { data } = await getCurrent(JSON.parse(accessToken));
-            if (data?.success) setCurrentUser(data?.data);
-            else {
-                console.log(data);
-                setCurrentUser(null);
-            }
+            data?.success && toast.success('Login successful');
+            setCurrentUser(data?.data);
         } catch (error: any) {
             console.log('err:', error?.response?.data);
+            try {
+                const { data } = await refreshAccessToken();
+                localStorage.setItem('accessToken', JSON.stringify(data?.newAccessToken));
+                loginCurrent();
+            } catch (error: any) {
+                console.log('err:', error?.response?.data);
+            }
         }
     };
-    console.log(currentUser);
     ////////////////////////////REACT_QUERY////////////////////////////////////////
     // const queryString: {page?: string} = useQueryString();
     // const page = Number(queryString.page) || 1;
@@ -52,7 +56,7 @@ const AuthContextProvider = ({ children }: any) => {
     }, [currentUser]);
 
     useLayoutEffect(() => {
-        loginCurrent();
+        !currentUser && loginCurrent();
     }, []);
     return <AuthContext.Provider value={{ currentUser, loginAccount }}>{children}</AuthContext.Provider>;
 };

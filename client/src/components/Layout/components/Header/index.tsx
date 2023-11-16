@@ -1,10 +1,13 @@
 import { useContext } from 'react';
 import { Link } from 'react-router-dom';
+import { AuthContext } from '~/context/AuthContext';
 
 import { DarkModeContext } from '~/context/DarkModeContext';
 
 function Header() {
     const { toggle, darkMode } = useContext(DarkModeContext);
+    const { currentUser } = useContext(AuthContext);
+      
     return (
         <nav className="flex items-center justify-between flex-wrap px-6 py-4 border-b-2 dark:border-none bg-gray-50 dark:bg-white dark:bg-opacity-10 z-10">
             <Link to="/" className="flex items-center flex-shrink-0 text-text dark:text-textDark mr-6">
@@ -12,7 +15,7 @@ function Header() {
             </Link>
             {darkMode ? (
                 <i onClick={toggle} className="fa-regular fa-sun dark:text-textDark"></i>
-                ) : (
+            ) : (
                 <i onClick={toggle} className="fa-regular fa-moon w-4 h-4 dark:text-textDark"></i>
             )}
 
@@ -36,18 +39,22 @@ function Header() {
                 </div>
                 <div>
                     <div className="relative w-10 h-10 overflow-hidden bg-gray-100 rounded-full dark:bg-gray-600">
-                        <svg
-                            className="absolute w-12 h-12 text-gray-400 dark:text-textDark -left-1"
-                            fill="currentColor"
-                            viewBox="0 0 20 20"
-                            xmlns="http://www.w3.org/2000/svg"
-                        >
-                            <path
-                                fill-rule="evenodd"
-                                d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z"
-                                clip-rule="evenodd"
-                            ></path>
-                        </svg>
+                        {currentUser?.avatar ? (
+                            <img src={currentUser?.avatar} alt="" />
+                        ) : (
+                            <svg
+                                className="absolute w-12 h-12 text-gray-400 dark:text-textDark -left-1"
+                                fill="currentColor"
+                                viewBox="0 0 20 20"
+                                xmlns="http://www.w3.org/2000/svg"
+                            >
+                                <path
+                                    fill-rule="evenodd"
+                                    d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z"
+                                    clip-rule="evenodd"
+                                ></path>
+                            </svg>
+                        )}
                     </div>
                 </div>
             </div>
