@@ -155,7 +155,7 @@ const forgotPassword = ({ email }) =>
             const resetToken = crypto.randomBytes(32).toString('hex');
             const passwordResetToken = crypto.createHash('sha256').update(resetToken).digest('hex');
             const passwordResetExprides = Date.now() + 15 * 60 * 1000;
-            const html = `Xin vui lòng click vào link dưới đây để thay đổi mật khẩu của bạn.Link này sẽ hết hạn sau 15ph kể từ bây giờ. <a href=${process.env.URL_SERVER}/api/user/reset-password/${resetToken}>Click here</a>`;
+            const html = `Xin vui lòng click vào link dưới đây để thay đổi mật khẩu của bạn.Link này sẽ hết hạn sau 15ph kể từ bây giờ. <a href=${process.env.CLIENT_URL}/resetpassword/${resetToken}>Click here</a>`;
             const data = {
                 email,
                 html,
@@ -174,7 +174,7 @@ const forgotPassword = ({ email }) =>
             const rs = await sendMail(data);
             resolve({
                 success: !!rs,
-                rs,
+                mes: rs ? 'Password reset email successfully sent! Please check your inbox.' : 'Failed to send password reset email. Please try again later.!'
             });
         } catch (error) {
             reject(error);

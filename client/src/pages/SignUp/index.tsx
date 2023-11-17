@@ -1,10 +1,11 @@
+import { useContext, useEffect, useState } from 'react';
+import { Link, Navigate } from 'react-router-dom';
+import { useMutation } from '@tanstack/react-query';
+import { toast } from 'react-toastify';
 import Datepicker from 'tailwind-datepicker-react';
 
-import { useContext, useLayoutEffect, useMemo, useState } from 'react';
-import { Link, Navigate } from 'react-router-dom';
-
 import { AuthContext } from '~/context/AuthContext';
-import { toast } from 'react-toastify';
+import { register } from '~/apis/auth.api';
 
 function SignUp() {
     const { currentUser } = useContext(AuthContext);
@@ -13,19 +14,37 @@ function SignUp() {
         firstName: '',
         lastName: '',
         gender: 2,
-        birthday: null,
+        birthday: new Date('2004-01-01'),
         email: '',
         password: '',
         confirmPassword: '',
         isAccept: false,
     });
+    // =====================================================================
+    const { mutate, isPending, isError, error, isSuccess, data }: any = useMutation({
+        mutationFn: (inputs) => {
+            return register(inputs);
+        },
+    });
 
     const genders = ['Male', 'Female', 'Other'];
 
+    useEffect(() => {
+        isError && console.log(error);
+        isError && error?.response?.data.mes && toast.error(error?.response?.data.mes);
+
+        if (isSuccess && data.data.success) toast.success(data.data.mes);
+        if (isSuccess && !data.data.success) toast.error(data.data.mes);
+        
+    }, [isError, isSuccess]);
+    // =====================================================================
     const signUp = (e: any) => {
         e.preventDefault();
         if (inputs.password === inputs.confirmPassword && inputs.isAccept) {
-        } else if (inputs.password === inputs.confirmPassword) {
+            console.log('submit');
+
+            mutate(inputs);
+        } else if (inputs.isAccept) {
             toast.error('Password does not match the confirm password', {
                 autoClose: 5000,
             });
@@ -61,7 +80,7 @@ function SignUp() {
         maxDate: new Date(Date.now()),
         minDate: new Date('1900-01-01'),
         theme: {
-            background: 'bg-gray-700 dark:bg-gray-800',
+            background: 'bg-white dark:bg-gray-800',
             todayBtn: '',
             clearBtn: '',
             icons: '',
@@ -238,8 +257,11 @@ function SignUp() {
                                                     id="isAccept"
                                                     aria-describedby="isAccept"
                                                     name="isAccept"
-                                                    onChange={(e) => handleInputsChange(e)}
+                                                    onChange={(e) =>
+                                                        setInputs({ ...inputs, isAccept: !inputs.isAccept })
+                                                    }
                                                     type="checkbox"
+                                                    checked={inputs.isAccept}
                                                     className="w-4 h-4 border border-gray-300 rounded bg-gray-50  dark:bg-gray-700 dark:border-gray-600 focus:ring-0"
                                                 />
                                             </div>

@@ -9,7 +9,7 @@ function Header() {
     const { currentUser } = useContext(AuthContext);
       
     return (
-        <nav className="flex items-center justify-between flex-wrap px-6 py-4 border-b-2 dark:border-none bg-gray-50 dark:bg-white dark:bg-opacity-10 z-10">
+        <nav className="flex items-center lg:justify-between flex-wrap px-6 py-4 border-b-2 dark:border-none bg-gray-50 dark:bg-white dark:bg-opacity-10 z-10">
             <Link to="/" className="flex items-center flex-shrink-0 text-text dark:text-textDark mr-6">
                 <span className="font-semibold text-xl tracking-tight">FConnect</span>
             </Link>
@@ -28,7 +28,7 @@ function Header() {
                 />
             </div>
 
-            <div className="ml-2 w-full block flex-grow lg:flex lg:items-center lg:w-auto">
+            <div className="ml-2 w-full ------block flex-grow flex -------lg:flex lg:items-center lg:w-auto">
                 <div className="text-sm lg:flex-grow">
                     <a
                         href="#responsive-header"

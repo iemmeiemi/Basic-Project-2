@@ -15,20 +15,17 @@ const AuthContextProvider = ({ children }: any) => {
     const loginAccount = async (inputs: any) => {
         try {
             const { data } = await login(inputs.email, inputs.password, inputs.remember);
-            if (data?.success && inputs.remember) {
-                localStorage.setItem('accessToken', JSON.stringify(data.accessToken));
-            }
+            data?.success && localStorage.setItem('accessToken', JSON.stringify(data.accessToken));
             data?.success ? toast.success('Login successful') : toast.error(data?.mes);
             data?.success && setCurrentUser(data?.data);
         } catch (error: any) {
-            toast.error(error?.message);
-            console.log('err:', error?.response?.data);
+            toast.error(error?.response?.data.mes);
+            console.log('err:', error.message);
         }
     };
     const loginCurrent = async () => {
         try {
-            const accessToken = localStorage.getItem('accessToken') || 'null';
-            const { data } = await getCurrent(JSON.parse(accessToken));
+            const { data } = await getCurrent();
             data?.success && toast.success('Login successful');
             setCurrentUser(data?.data);
         } catch (error: any) {

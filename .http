@@ -8,6 +8,12 @@ Content-Type: application/json
   "firstName": "John",
   "lastName": "Doe",
   "email": "join@gmail.com",
-  "password": "111111",
   "birthday": "2003-12-29T17:00:00.000Z"
+}
+###
+PUT http://localhost:5000/api/user/resetpassword
+Content-Type: application/json
+
+{
+  "password": "111111"
 }
