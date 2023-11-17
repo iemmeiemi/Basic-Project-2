@@ -20,7 +20,7 @@ const getAllPost = ( pack ) =>
                 const res = await pagi.getPagingData(data, pack.page, pack.limit);
                 return {
                     success: !!res,
-                    mes: res ? '' : 'Cannot get the data!',
+                    mes: res ? 'Successfully get posts' : 'Cannot get the data!',
                     data: res,
                 };
             } catch (error) {
