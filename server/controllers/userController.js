@@ -2,16 +2,24 @@ const asyncHandler = require('express-async-handler');
 const jwt = require('jsonwebtoken');
 
 const services = require('../services');
-const joi_schema = require('../helps/joi_schema');
+const { emailPasswordFormValidate, passwordFormValidate } = require('../helps/joi_schema');
 
 const register = asyncHandler(async (req, res) => {
     const { firstName, lastName, email, password, birthday, gender } = req.body;
     if (!firstName || !lastName || !email || !password || !birthday) throw new Error('Missing inputs');
-    fullName = firstName + ' ' + lastName;
-    const error = joi_schema.validate({ email, password })?.error;
+    const fullName = firstName + ' ' + lastName;
+    const error = emailPasswordFormValidate.validate({ email, password })?.error;
     if (error) throw new Error(error.details[0]?.message);
     delete req.body.role;
-    const response = await services.register({firstName, lastName, fullName, email, password, birthday});
+    switch (gender) {
+        case 0:
+            return 'Male';
+        case 1:
+            return 'Female';
+        case 2:
+            return 'Undetermined';
+    }
+    const response = await services.register({ firstName, lastName, fullName, gender, email, password, birthday });
     return res.status(200).json(response);
 });
 
@@ -31,7 +39,6 @@ const getCurrent = asyncHandler(async (req, res) => {
 });
 
 const refreshAccessToken = asyncHandler(async (req, res) => {
-    
     const decode = req.user;
     const response = await services.refreshAccessToken({ ...decode, refreshToken: req.cookies.refreshToken });
     return res.status(200).json(response);
@@ -39,9 +46,14 @@ const refreshAccessToken = asyncHandler(async (req, res) => {
 
 const logout = asyncHandler(async (req, res) => {
     const cookies = req.cookies;
-    if (!cookies || !cookies.refreshAccessToken) throw new Error('No refresh token in cookies');
-    const response = await services.logout({ refreshToken: cookies.refreshAccessToken });
-    res.clearCookie('refreshAccessToken', { httpOnly: true, secure: true });
+    if (!cookies || !cookies.refreshToken)
+        return res.status(200).json({
+            success: true,
+            mes: 'Logout is successfully!',
+        });
+    // throw new Error('No refresh token in cookies');
+    const response = await services.logout({ refreshToken: cookies.refreshToken });
+    res.clearCookie('refreshToken', { httpOnly: true, secure: true });
     return res.status(200).json(response);
 });
 
@@ -55,6 +67,8 @@ const forgotPassword = asyncHandler(async (req, res) => {
 const resetPassword = asyncHandler(async (req, res) => {
     const { password, resetToken } = req.body;
     if (!password || !resetToken) throw new Error('Missing inputs');
+    const error = passwordFormValidate.validate({password})?.error;
+    if (error) throw new Error(error.details[0]?.message);
     const response = await services.resetPassword({ password, resetToken });
     return res.status(200).json(response);
 });

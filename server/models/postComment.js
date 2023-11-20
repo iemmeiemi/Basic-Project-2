@@ -48,6 +48,10 @@ module.exports = (sequelize, DataTypes) => {
                     key: 'id',
                 },
             },
+            score: DataTypes.INTEGER,
+            parentSlug: DataTypes.STRING,
+            slug: DataTypes.STRING,
+            fullSlug: DataTypes.STRING,
         },
         {
             sequelize,
