@@ -17,3 +17,7 @@ Content-Type: application/json
 {
   "password": "111111"
 }
+
+###
+GET http://localhost:5000/api/user/current
+Content-Type: application/json

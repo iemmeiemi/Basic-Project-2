@@ -79,6 +79,8 @@ export const logout = () => {
     const accessToken = localStorage.getItem('accessToken') || 'null';
     localStorage.removeItem('accessToken');
     sessionStorage.removeItem('user');
+    console.log(accessToken);
+    
     return toast.promise(
         http.get<any>('api/user/logout', {
             headers: {

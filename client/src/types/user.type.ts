@@ -6,6 +6,11 @@ export interface User {
     fullName: string;
     gender: string;
     avatar: string;
+    backgroundImage: string;
+    biography: string;
+    studyAt: string;
+    workingAt: string;
+    birthday: Date;
     email: string;
     phone: string;
     interestedUsers: Array<number>;

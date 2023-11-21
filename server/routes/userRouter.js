@@ -9,6 +9,8 @@ router.get('/refreshaccesstoken', verifyRefreshToken, ctrls.refreshAccessToken);
 router.get('/forgotpassword', ctrls.forgotPassword);
 router.put('/resetpassword', ctrls.resetPassword);
 
+router.get('/:userId', ctrls.getUser);
+
 router.use(verifyAccessToken);
 
 router.get('/current', ctrls.getCurrent);

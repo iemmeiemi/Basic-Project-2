@@ -24,7 +24,7 @@ function LeftBar() {
     return (
         <aside
             id="sidebar-multi-level-sidebar"
-            className="top-0 left-0 z-40 w-full h-screen transition-transform -translate-x-full sm:translate-x-0 bg-gray-50 dark:bg-opacity-0 hidden md:block"
+            className="top-0 h-screen left-0 z-40 w-full transition-transform -translate-x-full sm:translate-x-0 bg-gray-50 dark:bg-opacity-0 hidden md:block"
             aria-label="Sidebar"
         >
             <div className="h-full px-3 py-4 overflow-y-auto">
