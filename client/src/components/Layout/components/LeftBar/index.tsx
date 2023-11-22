@@ -15,7 +15,7 @@ function LeftBar() {
     useEffect(() => {
         isError && console.log(error);
         isError && error?.response?.data.mes && toast.error(error?.response?.data.mes);
-
+        
         if (isSuccess && data.data.success) toast.success(data.data.mes);
         if (isSuccess && !data.data.success) toast.error(data.data.mes);
         if (isSuccess) window.location.reload();

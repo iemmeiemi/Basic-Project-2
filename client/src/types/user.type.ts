@@ -8,6 +8,7 @@ export interface User {
     avatar: string;
     backgroundImage: string;
     biography: string;
+    address: string;
     studyAt: string;
     workingAt: string;
     birthday: Date;

@@ -15,6 +15,7 @@ module.exports = {
                 primary: '#1f1f1f',
                 text: '#333',
                 textDark: '#f1f1f1',
+                link: 'rgb(28 100 242)',
             },
         },
         screens: {

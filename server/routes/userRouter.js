@@ -9,12 +9,19 @@ router.get('/refreshaccesstoken', verifyRefreshToken, ctrls.refreshAccessToken);
 router.get('/forgotpassword', ctrls.forgotPassword);
 router.put('/resetpassword', ctrls.resetPassword);
 
+router.get('/current', verifyAccessToken, ctrls.getCurrent);
+router.get('/logout', verifyAccessToken, ctrls.logout);
+
 router.get('/:userId', ctrls.getUser);
 
-router.use(verifyAccessToken);
+// router.use(verifyAccessToken); ko nên dùng như vầy vì ví dụ:
+//
+// route.get('/:id', controler)
+// route.use(verify)
+// route.get('/user, userSontroler)
+//
+// trường hợp này /user sẽ bị hiểu lầm là /:id
 
-router.get('/current', ctrls.getCurrent);
-router.get('/logout', ctrls.logout);
-router.get('/', isAdmin, ctrls.getUsers);
+router.get('/', isAdmin, verifyAccessToken, ctrls.getUsers);
 
 module.exports = router;
