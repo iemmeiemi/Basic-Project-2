@@ -11,29 +11,29 @@ const hashPassword = (password) => bcrypt.hashSync(password, bcrypt.genSaltSync(
 const register = (data) =>
     new Promise(async (resolve, reject) => {
         try {
-            const { birthday } = data;
+            const { birthday, ...data2 } = data;
             console.log(birthday);
             const response = await User.findOrCreate({
                 where: { email: data.email },
                 defaults: {
-                    ...data,
-                    password: hashPassword(data.password),
+                    ...data2,
+                    password: hashPassword(data2.password),
                 },
             });
             if (response[1]) {
                 const responseUser = await User.findOne({
                     where: {
-                        email: data.email
+                        email: data.email,
                     },
                     attributes: {
                         exclude: ['passwordChangedAt', 'passwordResetExprides', 'passwordResetToken', 'refreshToken'],
                     },
                 });
                 await Account.findOrCreate({
-                    where: { id: responseUser.id },
+                    where: { id: +responseUser.id },
                     defaults: {
-                        id: responseUser.id,
-                        birthday
+                        id: +responseUser.id,
+                        birthday,
                     },
                 });
             }
@@ -174,7 +174,9 @@ const forgotPassword = ({ email }) =>
             const rs = await sendMail(data);
             resolve({
                 success: !!rs,
-                mes: rs ? 'Password reset email successfully sent! Please check your inbox.' : 'Failed to send password reset email. Please try again later.!'
+                mes: rs
+                    ? 'Password reset email successfully sent! Please check your inbox.'
+                    : 'Failed to send password reset email. Please try again later.!',
             });
         } catch (error) {
             reject(error);
@@ -238,6 +240,30 @@ const getUsers = () =>
             reject(error);
         }
     });
+
+const getUser = (userId) =>
+    new Promise(async (resolve, reject) => {
+        try {
+            const response = await User.findByPk(userId, {
+                attributes: {
+                    exclude: [
+                        'password',
+                        'passwordChangedAt',
+                        'passwordResetExprides',
+                        'passwordResetToken',
+                        'refreshToken',
+                    ],
+                },
+            });
+            resolve({
+                success: !!response,
+                mes: response ? 'Successfully' : 'No users found',
+                data: response
+            });
+        } catch (error) {
+            reject(error);
+        }
+    });
 module.exports = {
     register,
     login,
@@ -247,4 +273,5 @@ module.exports = {
     forgotPassword,
     resetPassword,
     getUsers,
+    getUser,
 };

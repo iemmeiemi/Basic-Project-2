@@ -50,7 +50,7 @@ const logout = asyncHandler(async (req, res) => {
         return res.status(200).json({
             success: true,
             mes: 'Logout is successfully!',
-        });
+    });
     // throw new Error('No refresh token in cookies');
     const response = await services.logout({ refreshToken: cookies.refreshToken });
     res.clearCookie('refreshToken', { httpOnly: true, secure: true });
@@ -78,6 +78,11 @@ const getUsers = asyncHandler(async (req, res) => {
     return res.status(200).json(response);
 });
 
+const getUser = asyncHandler(async (req, res) => {
+    const response = await services.getUser(req.params.userId);
+    return res.status(200).json(response);
+});
+
 module.exports = {
     register,
     login,
@@ -87,4 +92,5 @@ module.exports = {
     forgotPassword,
     resetPassword,
     getUsers,
+    getUser
 };

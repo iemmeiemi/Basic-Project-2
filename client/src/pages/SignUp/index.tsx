@@ -60,7 +60,6 @@ function SignUp() {
             [e.target.name]: e.target.value,
         });
     };
-    console.log(inputs);
 
     const handleChangeBirthDay = (selectedDate: any) => {
         setInputs({

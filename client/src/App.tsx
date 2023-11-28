@@ -24,7 +24,7 @@ function App() {
     })
     return (
         <Router>
-            <div className="App fixed w-screen h-screen bg-[#e9e9e9] dark:bg-black dark:bg-opacity-80 overflow-hidden">
+            <div className="App w-screen bg-[#e9e9e9] dark:bg-black dark:bg-opacity-80">
                 <Routes>
                     <Route
                         key={0}
