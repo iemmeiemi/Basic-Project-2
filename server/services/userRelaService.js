@@ -45,7 +45,7 @@ const updateUserRela = async (receiver, sender, friend, follow) => {
                     { userId1: sender, userId2: receiver },
                 ],
             },
-        },);
+        });
     } else {
         response = await UserRelationship.update(
             { friend, follow },
@@ -61,29 +61,25 @@ const updateUserRela = async (receiver, sender, friend, follow) => {
     }
 
     return response;
-}
+};
 
-/*Function to use*/ 
-
+/*Function to use*/
 
 /************  *************/
 //pagination, filter, sort, limit
 
-const listFriend = async (pack) => 
+const listFriend = async (pack) =>
     new Promise(async (resolve, reject) => {
         const response = await UserRelationship.findAndCountAll({
             where: {
                 [Op.and]: [
-                    {[Op.or]: [
-                        { userId1: pack.userId },
-                        { userId2: pack.userId }
-                    ]},
+                    { [Op.or]: [{ userId1: pack.userId }, { userId2: pack.userId }] },
                     {
                         friend: friendEnum.fr,
-                    }
-                ]
+                    },
+                ],
             },
-            limit : pack.limit,
+            limit: pack.limit,
             offset: pack.offset,
         });
         resolve(response);
@@ -100,8 +96,8 @@ const listFriend = async (pack) =>
                 throw new Error('Cannot get Data!');
             }
         })
-        .catch(error => {
-            reject(new Error("Cannot get Data!"));
+        .catch((error) => {
+            reject(new Error('Cannot get Data!'));
         });
 
 const findingUser = (name) =>
@@ -126,7 +122,8 @@ const addFriend = (receiver, sender, job) =>
     new Promise(async (resolve, reject) => {
         try {
             const userRela = await find_or_create(receiver, sender);
-            let follow = userRela.follow, friend = userRela.friend;
+            let follow = userRela.follow,
+                friend = userRela.friend;
             const id1 = userRela.userId1;
             let mess;
 
@@ -178,8 +175,45 @@ const addFriend = (receiver, sender, job) =>
 
             const response = await updateUserRela(receiver, sender, friend, follow);
             resolve({
-                success: !!(response>0),
-                mes: response>0 ? mess + 'succesfully!' : 'unsuccessfully!',
+                success: !!(response > 0),
+                mes: response > 0 ? mess + 'succesfully!' : 'unsuccessfully!',
+            });
+        } catch (error) {
+            reject(error);
+        }
+    });
+
+const addFriend2 = ({ userId1, userId2, ...data }) =>
+    new Promise(async (resolve, reject) => {
+        try {
+            const response = await UserRelationship.findOrCreate({
+                where: { userId1, userId2 },
+                defaults: {
+                    userId1,
+                    userId2,
+                    ...data,
+                },
+            });
+            if (response[0]) {
+                const response2 = await UserRelationship.update(
+                    {
+                        userId1,
+                        userId2,
+                        ...data,
+                    },
+                    {
+                        where: { userId1, userId2 },
+                    },
+                );
+                resolve({
+                    success: !!response2,
+                    mes: response2 ? 'Successfully' : 'Cannot send',
+                });
+            }
+
+            resolve({
+                success: !!response[1],
+                mes: response[1] ? 'Successfully' : 'Cannot send',
             });
         } catch (error) {
             reject(error);
@@ -217,21 +251,23 @@ const acceptAddFriend = (receiver, sender) =>
         }
     });
 
-
 //unfriend
 const unFriend = (receiver, sender) =>
     new Promise(async (resolve, reject) => {
         try {
             const userRela = await find_or_create(sender, receiver); //chỉnh lại sau
-            if (!userRela) { throw new Error('You guys are not Friend!') };  
+            if (!userRela) {
+                throw new Error('You guys are not Friend!');
+            }
 
-            let follow = userRela.follow; const friend = null;
+            let follow = userRela.follow;
+            const friend = null;
             const id1 = userRela.userId1;
 
             //taoj ham
-            if(id1 === sender && (follow === followEnum.fl_b || follow === followEnum.nd_fl_st)) {
+            if (id1 === sender && (follow === followEnum.fl_b || follow === followEnum.nd_fl_st)) {
                 follow = followEnum.nd_fl_st;
-            }else if(id1 === receiver && (follow === followEnum.fl_b || follow === followEnum.st_fl_nd)) {
+            } else if (id1 === receiver && (follow === followEnum.fl_b || follow === followEnum.st_fl_nd)) {
                 follow = followEnum.st_fl_nd;
             } else {
                 follow = null;
@@ -240,8 +276,8 @@ const unFriend = (receiver, sender) =>
             const response = await updateUserRela(receiver, sender, friend, follow);
 
             resolve({
-                success: !! (response>0),
-                mes: response>0 ? 'Unfriend successfully!' : 'Unfriend unsuccessfully!',
+                success: !!(response > 0),
+                mes: response > 0 ? 'Unfriend successfully!' : 'Unfriend unsuccessfully!',
             });
         } catch (error) {
             reject(error);
@@ -254,17 +290,19 @@ const blockingUser = (receiver, sender, job) =>
         try {
             const userRela = await find_or_create(receiver, sender);
             const id1 = userRela.userId1;
-            let follow = null, friend, mess;
+            let follow = null,
+                friend,
+                mess;
             switch (job) {
                 case 'block':
                     mess = 'Block ';
-                    if(id1 === sender) {
+                    if (id1 === sender) {
                         friend = friendEnum.bl_st_nd;
                     } else {
                         friend = friendEnum.bl_nd_st;
                     }
                     break;
-            
+
                 case 'unblock':
                     mess = 'Unblock ';
                     friend = null;
@@ -274,42 +312,51 @@ const blockingUser = (receiver, sender, job) =>
             const response = await updateUserRela(receiver, sender, friend, follow);
 
             resolve({
-                success: !! (response>0),
+                success: !!(response > 0),
                 mes: response > 0 ? mess + 'successfully!' : mess + 'unsuccessfully!',
             });
-            
         } catch (error) {
             reject(error);
         }
     });
-
 
 //follow and unfollow
 const followingUser = (receiver, sender, job) =>
     new Promise(async (resolve, reject) => {
         try {
             const userRela = await find_or_create(receiver, sender);
-            let follow = userRela.follow, friend = userRela.friend;
+            let follow = userRela.follow,
+                friend = userRela.friend;
             const id1 = userRela.userId1;
             switch (job) {
                 case 'follow':
                     {
                         mess = 'Follow ';
-                        follow = (id1 === sender) ? 
-                                 ((follow === followEnum.fl_b || follow === followEnum.nd_fl_st) ? followEnum.fl_b : followEnum.st_fl_nd)
-                               : ((follow === followEnum.fl_b || follow === followEnum.st_fl_nd) ? followEnum.fl_b : followEnum.nd_fl_st);
+                        follow =
+                            id1 === sender
+                                ? follow === followEnum.fl_b || follow === followEnum.nd_fl_st
+                                    ? followEnum.fl_b
+                                    : followEnum.st_fl_nd
+                                : follow === followEnum.fl_b || follow === followEnum.st_fl_nd
+                                ? followEnum.fl_b
+                                : followEnum.nd_fl_st;
                     }
                     break;
-            
+
                 case 'unfollow':
                     {
                         mess = 'Unfollow ';
-                        follow = (id1 === sender) ? 
-                                 ((follow == null || follow === followEnum.st_fl_nd) ? null : followEnum.nd_fl_st)
-                               : ((follow == null || follow === followEnum.nd_fl_st) ? null : followEnum.st_fl_nd);
+                        follow =
+                            id1 === sender
+                                ? follow == null || follow === followEnum.st_fl_nd
+                                    ? null
+                                    : followEnum.nd_fl_st
+                                : follow == null || follow === followEnum.nd_fl_st
+                                ? null
+                                : followEnum.st_fl_nd;
                     }
                     break;
-            
+
                 default:
                     break;
             }
@@ -317,9 +364,9 @@ const followingUser = (receiver, sender, job) =>
             const response = await updateUserRela(receiver, sender, friend, follow);
 
             resolve({
-                success: !!(response>0),
-                mes: response>0 ? mess + 'successfully!' : 'unsuccessfully!',
-            })
+                success: !!(response > 0),
+                mes: response > 0 ? mess + 'successfully!' : 'unsuccessfully!',
+            });
         } catch (error) {
             reject(error);
         }
@@ -330,9 +377,9 @@ module.exports = {
     friendsRecommend,
     findingUser,
     addFriend,
+    addFriend2,
     acceptAddFriend,
     unFriend,
     blockingUser,
     followingUser,
-
 };

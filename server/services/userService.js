@@ -258,12 +258,70 @@ const getUser = (userId) =>
             resolve({
                 success: !!response,
                 mes: response ? 'Successfully' : 'No users found',
-                data: response
+                data: response,
             });
         } catch (error) {
             reject(error);
         }
     });
+
+const getUserAccount = (userId) =>
+    new Promise(async (resolve, reject) => {
+        try {
+            const user = await User.findByPk(userId, {
+                attributes: {
+                    exclude: [
+                        'password',
+                        'passwordChangedAt',
+                        'passwordResetExprides',
+                        'passwordResetToken',
+                        'refreshToken',
+                        'interestedUsers',
+                    ],
+                },
+            });
+            let gender;
+            switch (user.dataValues.gender) {
+                case 'Male':
+                    gender = 0;
+                    break;
+                case 'Female':
+                    gender = 1;
+                    break;
+                case 'Undetermined':
+                    gender = 2;
+                    break;
+            }
+            const account = await Account.findByPk(userId);
+            const userInfo = { ...user.dataValues, ...account.dataValues, gender };
+            resolve({
+                success: !!user && !!account,
+                mes: user && account ? 'Successfully' : 'No users found',
+                data: userInfo,
+            });
+        } catch (error) {
+            reject(error);
+        }
+    });
+
+const editUserAccount = ({ userData, accountData }) =>
+    new Promise(async (resolve, reject) => {
+        try {
+            const user = await User.update(userData, {
+                where: { id: userData.id },
+            });
+            const account = await Account.update(accountData, {
+                where: { id: userData.id },
+            });
+            resolve({
+                success: !!user && !!account,
+                mes: user && account ? 'Successfully' : 'No users found',
+            });
+        } catch (error) {
+            reject(error);
+        }
+    });
+
 module.exports = {
     register,
     login,
@@ -274,4 +332,6 @@ module.exports = {
     resetPassword,
     getUsers,
     getUser,
+    getUserAccount,
+    editUserAccount,
 };

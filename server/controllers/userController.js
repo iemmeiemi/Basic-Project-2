@@ -2,22 +2,26 @@ const asyncHandler = require('express-async-handler');
 const jwt = require('jsonwebtoken');
 
 const services = require('../services');
-const { emailPasswordFormValidate, passwordFormValidate } = require('../helps/joi_schema');
+const { emailPasswordFormValidate, passwordFormValidate, emailFormValidate } = require('../helps/joi_schema');
 
 const register = asyncHandler(async (req, res) => {
-    const { firstName, lastName, email, password, birthday, gender } = req.body;
+    const { firstName, lastName, email, password, birthday } = req.body;
     if (!firstName || !lastName || !email || !password || !birthday) throw new Error('Missing inputs');
     const fullName = firstName + ' ' + lastName;
     const error = emailPasswordFormValidate.validate({ email, password })?.error;
     if (error) throw new Error(error.details[0]?.message);
     delete req.body.role;
-    switch (gender) {
+    let gender;
+    switch (req.body.gender) {
         case 0:
-            return 'Male';
+            gender = 'Male';
+            break;
         case 1:
-            return 'Female';
+            gender = 'Female';
+            break;
         case 2:
-            return 'Undetermined';
+            gender = 'Undetermined';
+            break;
     }
     const response = await services.register({ firstName, lastName, fullName, gender, email, password, birthday });
     return res.status(200).json(response);
@@ -50,7 +54,7 @@ const logout = asyncHandler(async (req, res) => {
         return res.status(200).json({
             success: true,
             mes: 'Logout is successfully!',
-    });
+        });
     // throw new Error('No refresh token in cookies');
     const response = await services.logout({ refreshToken: cookies.refreshToken });
     res.clearCookie('refreshToken', { httpOnly: true, secure: true });
@@ -67,7 +71,7 @@ const forgotPassword = asyncHandler(async (req, res) => {
 const resetPassword = asyncHandler(async (req, res) => {
     const { password, resetToken } = req.body;
     if (!password || !resetToken) throw new Error('Missing inputs');
-    const error = passwordFormValidate.validate({password})?.error;
+    const error = passwordFormValidate.validate({ password })?.error;
     if (error) throw new Error(error.details[0]?.message);
     const response = await services.resetPassword({ password, resetToken });
     return res.status(200).json(response);
@@ -83,6 +87,35 @@ const getUser = asyncHandler(async (req, res) => {
     return res.status(200).json(response);
 });
 
+const getUserAccount = asyncHandler(async (req, res) => {
+    const response = await services.getUserAccount(req.params.userId);
+    return res.status(200).json(response);
+});
+
+const editUserAccount = asyncHandler(async (req, res) => {
+    const { studyAt, workingAt, address, birthday, ...userData } = req.body;
+    const accountData = { studyAt, workingAt, address, birthday };
+    const { firstName, lastName, email } = userData;
+    if (!firstName || !lastName || !email || !birthday) throw new Error('Missing inputs');
+    userData.fullName = firstName + ' ' + lastName;
+    const error = emailFormValidate.validate({ email })?.error;
+    if (error) throw new Error(error.details[0]?.message);
+    delete req.body.role;
+    switch (userData.gender) {
+        case 0:
+            userData.gender = 'Male';
+            break;
+        case 1:
+            userData.gender = 'Female';
+            break;
+        case 2:
+            userData.gender = 'Undetermined';
+            break;
+    }
+    const response = await services.editUserAccount({ userData, accountData });
+    return res.status(200).json(response);
+});
+
 module.exports = {
     register,
     login,
@@ -92,5 +125,7 @@ module.exports = {
     forgotPassword,
     resetPassword,
     getUsers,
-    getUser
+    getUser,
+    getUserAccount,
+    editUserAccount,
 };

@@ -13,6 +13,8 @@ router.get('/current', verifyAccessToken, ctrls.getCurrent);
 router.get('/logout', verifyAccessToken, ctrls.logout);
 
 router.get('/:userId', ctrls.getUser);
+router.get('/profile/:userId', ctrls.getUserAccount);
+router.put('/profile',verifyAccessToken, ctrls.editUserAccount);
 
 // router.use(verifyAccessToken); ko nên dùng như vầy vì ví dụ:
 //

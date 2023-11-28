@@ -1,12 +1,13 @@
 import { useMutation } from '@tanstack/react-query';
 import { useContext, useEffect, useState } from 'react';
-import { Link, useParams } from 'react-router-dom';
+import { useParams } from 'react-router-dom';
 import { toast } from 'react-toastify';
-import { getUser } from '~/apis/user.api';
+import { getUserAccount } from '~/apis/user.api';
 
 import EditProfile from './components/EditProfile';
 import ViewAllFriends from './components/ViewAllFriends';
 import { AuthContext } from '~/context/AuthContext';
+import AddFriendBtn from './components/AddFriendBtn';
 
 function Profile() {
     const { currentUser } = useContext(AuthContext);
@@ -14,9 +15,10 @@ function Profile() {
     const [showEditProfile, setShowEditProfile] = useState(false);
     const [showViewAllFriends, setShowViewAllFriends] = useState(false);
     const { userId }: any = useParams();
+    // get user info
     const { mutate, isLoading, isPending, isError, error, isSuccess, data }: any = useMutation({
         mutationFn: () => {
-            return getUser(userId);
+            return getUserAccount(userId);
         },
     });
 
@@ -48,7 +50,6 @@ function Profile() {
                                     }
                                     alt="Cover Photo"
                                 />
-                                {/* =======continue== */}
                                 {currentUser?.id == user.id && (
                                     <button className="px-2 py-1 rounded-full bg-black bg-opacity-30 text-white absolute right-5 bottom-1 z-10">
                                         <i className="fa-solid fa-camera" />
@@ -57,7 +58,7 @@ function Profile() {
                             </div>
                             <div className="absolute bottom-0 left-0 right-0 transform translate-y-1/3">
                                 <img
-                                    className="w-24 h-24 mx-auto rounded-full"
+                                    className="w-24 h-24 lg:w-28 lg:h-28 mx-auto rounded-full"
                                     src={
                                         user.avatar ||
                                         'https://scontent.fdad3-6.fna.fbcdn.net/v/t39.30808-6/353448712_1660618624451357_885125259067810930_n.jpg?stp=dst-jpg_s851x315&_nc_cat=100&ccb=1-7&_nc_sid=5f2048&_nc_ohc=vJehIP5ofc4AX-kLl4O&_nc_ht=scontent.fdad3-6.fna&oh=00_AfDSq0zWiMJabULBuP7JYadqQsr6JVMC2YsF_HOSLOEafA&oe=655F536C'
@@ -86,18 +87,17 @@ function Profile() {
                                 )}
                             </div>
                             <div className="mt-5 flex items-center justify-center gap-5">
-                                <button
-                                    type="button"
-                                    className="text-white bg-blue-600 focus:bg-blue-800 font-medium rounded-lg text-sm px-5 py-2.5 me-2 mb-2 dark:bg-blue-600 dark:hover:bg-blue-700 focus:outline-none"
-                                >
-                                    <i className="fa-solid fa-user-plus" /> Add friend
-                                </button>
-                                <button
-                                    type="button"
-                                    className="text-white bg-blue-600 focus:bg-blue-800 font-medium rounded-lg text-sm px-5 py-2.5 me-2 mb-2 dark:bg-blue-600 dark:hover:bg-blue-700 focus:outline-none"
-                                >
-                                    <i className="fa-solid fa-plus" /> Follow
-                                </button>
+                                {currentUser && currentUser?.id !== user.id && (
+                                    <>
+                                        <AddFriendBtn/>
+                                        <button
+                                            type="button"
+                                            className="text-white bg-blue-600 focus:bg-blue-800 font-medium rounded-lg text-sm px-5 py-2.5 me-2 mb-2 dark:bg-blue-600 dark:hover:bg-blue-700 focus:outline-none"
+                                        >
+                                            <i className="fa-solid fa-plus" /> Follow
+                                        </button>
+                                    </>
+                                )}
                             </div>
                         </div>
                     </div>
@@ -118,7 +118,7 @@ function Profile() {
                                             {currentUser?.id == user.id ? (
                                                 <i className="fa-solid fa-pen-to-square" />
                                             ) : (
-                                                <span className='text-link'>more</span>
+                                                <span className="text-link">more</span>
                                             )}
                                         </button>
                                     </div>
@@ -151,7 +151,7 @@ function Profile() {
                                                 <div className="mx-auto flex-cow items-center justify-center">
                                                     <img
                                                         className="mx-auto w-20 h-20 rounded"
-                                                        src="https://scontent.fdad1-3.fna.fbcdn.net/v/t39.30808-1/394482877_1128324195194313_2535370621627794330_n.jpg?stp=c1.3.318.317a_dst-jpg_p320x320&_nc_cat=111&ccb=1-7&_nc_sid=5f2048&_nc_ohc=hVeFMDOk-pcAX9GIPDP&_nc_ht=scontent.fdad1-3.fna&oh=00_AfBJa0dlsah1yMBybkDpXf2HOn19cJjCH25nwpWwuP2hKQ&oe=655F8838"
+                                                        src="https://scontent.fdad3-6.fna.fbcdn.net/v/t39.30808-6/405296117_2903850576419341_2491313395414210813_n.jpg?stp=dst-jpg_p600x600&_nc_cat=110&ccb=1-7&_nc_sid=5f2048&_nc_ohc=qzeatfqWRXoAX8V4eC2&_nc_ht=scontent.fdad3-6.fna&oh=00_AfD8yeezhu14NwrEvwE2MEjYtv2Ao5yDHa36jylmo434Gw&oe=656B75D4"
                                                         alt="Large avatar"
                                                     />
                                                     <div className="text-xs md:text-base font-bold whitespace-nowrap overflow-hidden overflow-ellipsis w-24 text-center">
@@ -161,7 +161,7 @@ function Profile() {
                                                 <div className="mx-auto flex-cow items-center justify-center">
                                                     <img
                                                         className="mx-auto w-20 h-20 rounded"
-                                                        src="https://scontent.fdad1-3.fna.fbcdn.net/v/t39.30808-1/394482877_1128324195194313_2535370621627794330_n.jpg?stp=c1.3.318.317a_dst-jpg_p320x320&_nc_cat=111&ccb=1-7&_nc_sid=5f2048&_nc_ohc=hVeFMDOk-pcAX9GIPDP&_nc_ht=scontent.fdad1-3.fna&oh=00_AfBJa0dlsah1yMBybkDpXf2HOn19cJjCH25nwpWwuP2hKQ&oe=655F8838"
+                                                        src="https://scontent.fdad3-6.fna.fbcdn.net/v/t39.30808-6/405296117_2903850576419341_2491313395414210813_n.jpg?stp=dst-jpg_p600x600&_nc_cat=110&ccb=1-7&_nc_sid=5f2048&_nc_ohc=qzeatfqWRXoAX8V4eC2&_nc_ht=scontent.fdad3-6.fna&oh=00_AfD8yeezhu14NwrEvwE2MEjYtv2Ao5yDHa36jylmo434Gw&oe=656B75D4"
                                                         alt="Large avatar"
                                                     />
                                                     <div className="text-xs md:text-base font-bold whitespace-nowrap overflow-hidden overflow-ellipsis w-24 text-center">
@@ -171,7 +171,7 @@ function Profile() {
                                                 <div className="mx-auto flex-cow items-center justify-center">
                                                     <img
                                                         className="mx-auto w-20 h-20 rounded"
-                                                        src="https://scontent.fdad1-3.fna.fbcdn.net/v/t39.30808-1/394482877_1128324195194313_2535370621627794330_n.jpg?stp=c1.3.318.317a_dst-jpg_p320x320&_nc_cat=111&ccb=1-7&_nc_sid=5f2048&_nc_ohc=hVeFMDOk-pcAX9GIPDP&_nc_ht=scontent.fdad1-3.fna&oh=00_AfBJa0dlsah1yMBybkDpXf2HOn19cJjCH25nwpWwuP2hKQ&oe=655F8838"
+                                                        src="https://scontent.fdad3-6.fna.fbcdn.net/v/t39.30808-6/405296117_2903850576419341_2491313395414210813_n.jpg?stp=dst-jpg_p600x600&_nc_cat=110&ccb=1-7&_nc_sid=5f2048&_nc_ohc=qzeatfqWRXoAX8V4eC2&_nc_ht=scontent.fdad3-6.fna&oh=00_AfD8yeezhu14NwrEvwE2MEjYtv2Ao5yDHa36jylmo434Gw&oe=656B75D4"
                                                         alt="Large avatar"
                                                     />
                                                     <div className="text-xs md:text-base font-bold whitespace-nowrap overflow-hidden overflow-ellipsis w-24 text-center">
@@ -181,7 +181,7 @@ function Profile() {
                                                 <div className="mx-auto flex-cow items-center justify-center">
                                                     <img
                                                         className="mx-auto w-20 h-20 rounded"
-                                                        src="https://scontent.fdad1-3.fna.fbcdn.net/v/t39.30808-1/394482877_1128324195194313_2535370621627794330_n.jpg?stp=c1.3.318.317a_dst-jpg_p320x320&_nc_cat=111&ccb=1-7&_nc_sid=5f2048&_nc_ohc=hVeFMDOk-pcAX9GIPDP&_nc_ht=scontent.fdad1-3.fna&oh=00_AfBJa0dlsah1yMBybkDpXf2HOn19cJjCH25nwpWwuP2hKQ&oe=655F8838"
+                                                        src="https://scontent.fdad3-6.fna.fbcdn.net/v/t39.30808-6/405296117_2903850576419341_2491313395414210813_n.jpg?stp=dst-jpg_p600x600&_nc_cat=110&ccb=1-7&_nc_sid=5f2048&_nc_ohc=qzeatfqWRXoAX8V4eC2&_nc_ht=scontent.fdad3-6.fna&oh=00_AfD8yeezhu14NwrEvwE2MEjYtv2Ao5yDHa36jylmo434Gw&oe=656B75D4"
                                                         alt="Large avatar"
                                                     />
                                                     <div className="text-xs md:text-base font-bold whitespace-nowrap overflow-hidden overflow-ellipsis w-24 text-center">
@@ -191,7 +191,7 @@ function Profile() {
                                                 <div className="mx-auto flex-cow items-center justify-center">
                                                     <img
                                                         className="mx-auto w-20 h-20 rounded"
-                                                        src="https://scontent.fdad1-3.fna.fbcdn.net/v/t39.30808-1/394482877_1128324195194313_2535370621627794330_n.jpg?stp=c1.3.318.317a_dst-jpg_p320x320&_nc_cat=111&ccb=1-7&_nc_sid=5f2048&_nc_ohc=hVeFMDOk-pcAX9GIPDP&_nc_ht=scontent.fdad1-3.fna&oh=00_AfBJa0dlsah1yMBybkDpXf2HOn19cJjCH25nwpWwuP2hKQ&oe=655F8838"
+                                                        src="https://scontent.fdad3-6.fna.fbcdn.net/v/t39.30808-6/405296117_2903850576419341_2491313395414210813_n.jpg?stp=dst-jpg_p600x600&_nc_cat=110&ccb=1-7&_nc_sid=5f2048&_nc_ohc=qzeatfqWRXoAX8V4eC2&_nc_ht=scontent.fdad3-6.fna&oh=00_AfD8yeezhu14NwrEvwE2MEjYtv2Ao5yDHa36jylmo434Gw&oe=656B75D4"
                                                         alt="Large avatar"
                                                     />
                                                     <div className="text-xs md:text-base font-bold whitespace-nowrap overflow-hidden overflow-ellipsis w-24 text-center">
@@ -201,7 +201,7 @@ function Profile() {
                                                 <div className="mx-auto flex-cow items-center justify-center">
                                                     <img
                                                         className="mx-auto w-20 h-20 rounded"
-                                                        src="https://scontent.fdad1-3.fna.fbcdn.net/v/t39.30808-1/394482877_1128324195194313_2535370621627794330_n.jpg?stp=c1.3.318.317a_dst-jpg_p320x320&_nc_cat=111&ccb=1-7&_nc_sid=5f2048&_nc_ohc=hVeFMDOk-pcAX9GIPDP&_nc_ht=scontent.fdad1-3.fna&oh=00_AfBJa0dlsah1yMBybkDpXf2HOn19cJjCH25nwpWwuP2hKQ&oe=655F8838"
+                                                        src="https://scontent.fdad3-6.fna.fbcdn.net/v/t39.30808-6/405296117_2903850576419341_2491313395414210813_n.jpg?stp=dst-jpg_p600x600&_nc_cat=110&ccb=1-7&_nc_sid=5f2048&_nc_ohc=qzeatfqWRXoAX8V4eC2&_nc_ht=scontent.fdad3-6.fna&oh=00_AfD8yeezhu14NwrEvwE2MEjYtv2Ao5yDHa36jylmo434Gw&oe=656B75D4"
                                                         alt="Large avatar"
                                                     />
                                                     <div className="text-xs md:text-base font-bold whitespace-nowrap overflow-hidden overflow-ellipsis w-24 text-center">

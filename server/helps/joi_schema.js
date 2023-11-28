@@ -9,4 +9,5 @@ module.exports = {
         password,
     }),
     passwordFormValidate: joi.object({password}),
+    emailFormValidate: joi.object({email}),
 };

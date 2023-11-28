@@ -1,24 +1,41 @@
 import Datepicker from 'tailwind-datepicker-react';
-import { useContext, useState } from 'react';
+import { useContext, useEffect, useState } from 'react';
 
 import { AuthContext } from '~/context/AuthContext';
+import { useMutation } from '@tanstack/react-query';
+import { toast } from 'react-toastify';
+import { editUserAccount } from '~/apis/user.api';
 
 function EditProfile({ user, setShowEditProfile }: any) {
     const { currentUser } = useContext(AuthContext);
     const [showSelectDate, setShowSelectDate] = useState(false);
     const [inputs, setInputs] = useState({
-        firstName: '',
-        lastName: '',
-        gender: 2,
-        birthday: new Date('2004-01-01'),
-        email: '',
-        phone: '',
-        address: '',
-        studyAt: '',
-        workingAt: '',
-        isAccept: false,
+        firstName: user.firstName,
+        lastName: user.lastName,
+        gender: user.gender,
+        birthday: new Date(user.birthday),
+        email: user.email,
+        phone: user.phone || '',
+        address: user.address || '',
+        studyAt: user.studyAt || '',
+        workingAt: user.workingAt || '',
     });
     const genders = ['Male', 'Female', 'Other'];
+
+    const { mutate, isLoading, isPending, isError, error, isSuccess, data }: any = useMutation({
+        mutationFn: () => {
+            return editUserAccount({ id: currentUser.id, ...inputs });
+        },
+    });
+
+    useEffect(() => {
+        isError && console.log(error);
+        isError && error?.response?.data.mes && toast.error(error?.response?.data.mes, { autoClose: false });
+        isError && !error?.response?.data.mes && toast.error(error.message, { autoClose: false });
+
+        if (isSuccess && data.data.success) toast.success(data.data.mes);
+        if (isSuccess && !data.data.success) toast.error(data.data.mes);
+    }, [isError, isSuccess]);
 
     const handleInputsChange = (e: any) => {
         currentUser?.id == user.id &&
@@ -262,6 +279,7 @@ function EditProfile({ user, setShowEditProfile }: any) {
                     <div className="px-4 py-2 text-right">
                         {currentUser?.id == user.id && (
                             <button
+                                onClick={() => mutate()}
                                 type="button"
                                 className="text-white bg-blue-600 focus:bg-blue-800 font-medium rounded-lg text-sm px-5 py-2.5 me-2 mb-2 dark:bg-blue-600 dark:hover:bg-blue-700 focus:outline-none"
                             >

@@ -9,6 +9,7 @@ router.post('/find', ctrls.listFriend);
 
 //Friend rela
 router.post('/add-friend', verifyAccessToken, ctrls.addFriend); 
+router.post('/add-friend2', verifyAccessToken, ctrls.addFriend2); 
 router.post('/unsend-add-friend', verifyAccessToken, ctrls.unSenAddFriend);
 router.put('/accept-add-friend', verifyAccessToken, ctrls.acceptAddFriend);
 router.put('/unfriend', verifyAccessToken, ctrls.unFriend); 
