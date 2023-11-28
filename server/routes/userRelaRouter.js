@@ -3,8 +3,13 @@ const ctrls = require('../controllers/userRelaController');
 const { verifyAccessToken, isAdmin } = require('../middlewares/verifyToken');
 
 //List Friend
-router.post('/list', ctrls.listFriend);
-router.post('/find', ctrls.listFriend);
+router.get('/list-friend', ctrls.listFriend);
+router.get('/list-pending-to-me', verifyAccessToken, ctrls.listFriend);
+router.get('/list-me-pending', verifyAccessToken, ctrls.listFriend);
+//router.get('/find', ctrls.listFriend); //sort by name
+
+//List block: building later.
+//router.get('/list-block', ctrls. ); //sort by name
 
 
 //Friend rela
