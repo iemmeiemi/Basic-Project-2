@@ -117,8 +117,8 @@ const editUserAccount = asyncHandler(async (req, res) => {
 });
 
 const getSearchUsers = asyncHandler(async (req, res) => {
-    const {q} = req.query;
-    const response = await services.getSearchUsers({q});
+    const { q } = req.query;
+    const response = await services.getSearchUsers({ q });
     return res.status(200).json(response);
 });
 
@@ -134,5 +134,5 @@ module.exports = {
     getUser,
     getUserAccount,
     editUserAccount,
-    getSearchUsers
+    getSearchUsers,
 };

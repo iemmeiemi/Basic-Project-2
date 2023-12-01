@@ -11,24 +11,39 @@ export const getUserAccount = (userId: number | string) => {
 
 export const editUserAccount = (data: any) => {
     const accessToken = localStorage.getItem('accessToken') || 'null';
-    return http.put<any>(
-        `api/user/profile/`,
-        {
-            ...data,
-        },
-        {
-            headers: {
-                Authorization: `Bearer ${JSON.parse(accessToken)}`,
+    return toast.promise(
+        http.put<any>(
+            `api/user/profile/`,
+            {
+                ...data,
             },
+            {
+                headers: {
+                    Authorization: `Bearer ${JSON.parse(accessToken)}`,
+                },
+            },
+        ),
+        {
+            pending: 'Edit profile is pending',
         },
     );
 };
 
+export const getCheckUserRela = (userId2: any) => {
+    const accessToken = localStorage.getItem('accessToken') || 'null';
+    return http.get<any>(`api/user-rela/check-user-relationship`, {
+        headers: {
+            Authorization: `Bearer ${JSON.parse(accessToken)}`,
+        },
+        params: { userId2 },
+    });
+};
+// sửa thành phương thức get
 export const addFriend = (receiver: any) => {
     const accessToken = localStorage.getItem('accessToken') || 'null';
     return toast.promise(
         http.post<any>(
-            `api/user-rela/add-friend`,
+            `api/user-rela/add-friend2`,
             {
                 receiver,
             },
@@ -44,6 +59,48 @@ export const addFriend = (receiver: any) => {
     );
 };
 
+export const cancelFriendRequest = (id: any) => {
+    const accessToken = localStorage.getItem('accessToken') || 'null';
+    return http.post<any>(
+        `api/user-rela/unsend-add-friend`,
+        {},
+        {
+            headers: {
+                Authorization: `Bearer ${JSON.parse(accessToken)}`,
+            },
+            params: { id },
+        },
+    );
+};
+
+export const acceptFriendRequest = (id: any) => {
+    const accessToken = localStorage.getItem('accessToken') || 'null';
+    return http.put<any>(
+        `api/user-rela/accept-add-friend`,
+        {},
+        {
+            headers: {
+                Authorization: `Bearer ${JSON.parse(accessToken)}`,
+            },
+            params: { id },
+        },
+    );
+};
+
+export const unfriendRequest = (id: any) => {
+    const accessToken = localStorage.getItem('accessToken') || 'null';
+    return http.put<any>(
+        `api/user-rela/unfriend`,
+        {},
+        {
+            headers: {
+                Authorization: `Bearer ${JSON.parse(accessToken)}`,
+            },
+            params: { id },
+        },
+    );
+};
+
 export const getSearchUsers = (q: any) => {
     const accessToken = localStorage.getItem('accessToken') || 'null';
     return toast.promise(
@@ -54,7 +111,7 @@ export const getSearchUsers = (q: any) => {
             params: { q },
         }),
         {
-            pending: 'Add friend is pending',
+            pending: 'Search is pending',
         },
     );
 };

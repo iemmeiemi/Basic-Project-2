@@ -43,9 +43,10 @@ export const register = (inputs: any) => {
             birthday: inputs.birthday,
             email: inputs.email,
             password: inputs.password,
+            gender: inputs.gender,
         }),
         {
-            pending: 'Register is pending'
+            pending: 'Register is pending',
         },
     );
 };
@@ -54,8 +55,8 @@ export const forgotPassword = (inputs: any) => {
     return toast.promise(
         http.get<any>('api/user/forgotpassword', {
             params: {
-                email: inputs.email
-            }
+                email: inputs.email,
+            },
         }),
         {
             pending: 'Forgot Password is pending',
@@ -63,7 +64,7 @@ export const forgotPassword = (inputs: any) => {
     );
 };
 
-export const resetPassword = (inputs: any) => {   
+export const resetPassword = (inputs: any) => {
     return toast.promise(
         http.put<any>('api/user/resetpassword', {
             password: inputs.password,
@@ -80,15 +81,15 @@ export const logout = () => {
     localStorage.removeItem('accessToken');
     sessionStorage.removeItem('user');
     console.log(accessToken);
-    
+
     return toast.promise(
         http.get<any>('api/user/logout', {
             headers: {
                 Authorization: `Bearer ${JSON.parse(accessToken)}`,
-            }
+            },
         }),
         {
-            pending: 'Logout is pending'
+            pending: 'Logout is pending',
         },
     );
 };

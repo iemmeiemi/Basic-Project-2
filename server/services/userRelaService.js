@@ -66,6 +66,64 @@ const updateUserRela = async (receiver, sender, friend, follow) => {
 /*Function to use*/
 
 /************  *************/
+
+const getCheckUserRela = async ({ userId1, userId2, isReceiver }) =>
+    new Promise(async (resolve, reject) => {
+        try {
+            const response = await UserRelationship.findOne({
+                where: {
+                    userId1,
+                    userId2,
+                },
+            });
+            let friend, follow;
+            if (response) {
+                switch (response.dataValues.friend) {
+                    case friendEnum.pd_st_nd:
+                        friend = isReceiver ? 'pending' : 'waiting';
+                        break;
+                    case friendEnum.pd_nd_st:
+                        friend = isReceiver ? 'waiting' : 'pending';
+                        break;
+                    case friendEnum.fr:
+                        friend = 'friend';
+                        break;
+                    case friendEnum.bl_st_nd:
+                        if (isReceiver) friend = 'blocking';
+                        break;
+                    case friendEnum.bl_nd_st:
+                        if (!isReceiver) friend = 'blocking';
+                        break;
+                    case friendEnum.bl_b:
+                        friend = 'blocking';
+                        break;
+                    default:
+                        break;
+                }
+                switch (response.dataValues.follow) {
+                    case followEnum.st_fl_nd:
+                        if (isReceiver) follow = 'follow';
+                        break;
+                    case followEnum.nd_fl_st:
+                        if (!isReceiver) follow = 'follow';
+                        break;
+                    case followEnum.fl_b:
+                        follow = 'follow';
+                        break;
+                    default:
+                        break;
+                }
+            }
+            resolve({
+                success: !!response,
+                mes: response ? 'Successfully' : 'Cannot send',
+                data: { friend, follow },
+            });
+        } catch (error) {
+            reject(error);
+        }
+    });
+
 //pagination, filter, sort, limit
 //list friend, list pending
 const listFriend = async (pack, job) =>
@@ -429,4 +487,5 @@ module.exports = {
     unFriend,
     blockingUser,
     followingUser,
+    getCheckUserRela,
 };

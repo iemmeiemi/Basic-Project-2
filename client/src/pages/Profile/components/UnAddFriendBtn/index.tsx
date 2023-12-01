@@ -3,13 +3,13 @@ import { useEffect } from 'react';
 import { useParams } from 'react-router-dom';
 import { toast } from 'react-toastify';
 
-import { addFriend } from '~/apis/user.api';
+import { addFriend, cancelFriendRequest } from '~/apis/user.api';
 
-function AddFriendBtn({ callCheckRela }: any) {
+function UnAddFriendBtn({ setUserRela }: any) {
     const { userId }: any = useParams();
     const { mutate, isLoading, isPending, isError, error, isSuccess, data }: any = useMutation({
         mutationFn: () => {
-            return addFriend(userId);
+            return cancelFriendRequest(userId);
         },
     });
 
@@ -20,7 +20,7 @@ function AddFriendBtn({ callCheckRela }: any) {
 
         if (isSuccess && data.data.success) {
             toast.success(data.data.mes);
-            callCheckRela();
+            setUserRela({});
         }
         if (isSuccess && !data.data.success) toast.error(data.data.mes);
     }, [isError, isSuccess]);
@@ -30,9 +30,9 @@ function AddFriendBtn({ callCheckRela }: any) {
             type="button"
             className="text-white bg-blue-600 focus:bg-blue-800 font-medium rounded-lg text-sm px-5 py-2.5 me-2 mb-2 dark:bg-blue-600 dark:hover:bg-blue-700 focus:outline-none"
         >
-            <i className="fa-solid fa-user-plus" /> Add friend
+            <i className="fa-solid fa-user-xmark" /> Cancel request
         </button>
     );
 }
 
-export default AddFriendBtn;
+export default UnAddFriendBtn;

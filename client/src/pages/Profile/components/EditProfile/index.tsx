@@ -75,7 +75,7 @@ function EditProfile({ user, setShowEditProfile }: any) {
             inputIcon: '',
             selected: '',
         },
-        defaultDate: new Date('2004-01-01'),
+        defaultDate: new Date(inputs.birthday),
         language: 'en',
     };
 
@@ -130,10 +130,7 @@ function EditProfile({ user, setShowEditProfile }: any) {
 
                     <div className="px-4 py-2 grid gap-4 lg:grid-cols-2">
                         <div className="flex items-center justify-between">
-                            <label
-                                htmlFor="gender"
-                                className="block text-sm font-medium text-gray-900 dark:text-white"
-                            >
+                            <label htmlFor="gender" className="block text-sm font-medium text-gray-900 dark:text-white">
                                 Gender:
                             </label>
                             {genders.map((value, index) => (

@@ -26,9 +26,8 @@ function Search() {
         isError && !error?.response?.data.mes && toast.error(error.message, { autoClose: false });
 
         if (isSuccess && data.data.success) toast.success(data.data.mes);
-        if (isSuccess && !data.data.success) toast.error(data.data.mes);
+        if (isSuccess && !data.data.success) toast.error(data.data.mes, { autoClose: false });
     }, [isError, isSuccess]);
-    console.log(data?.data?.data);
 
     return (
         <>
@@ -36,6 +35,7 @@ function Search() {
                 <div className="container mx-auto p-4">
                     {/* =========Start Show User==== */}
                     {data?.data?.data &&
+                        data?.data?.data.length > 0 &&
                         data.data.data.map(
                             (user: any, index: number) =>
                                 currentUser.id != user.id && (

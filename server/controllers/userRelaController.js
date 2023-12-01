@@ -26,6 +26,22 @@ const checkUserId = (receiver, sender) => {
     }
 };
 
+const getCheckUserRela = asyncHandler(async (req, res) => {
+    let userId1 = req.user.id;
+    let { userId2 } = req.query;
+    let isReceiver = true;
+    if (!userId1 || !userId2) throw new Error('Missing inputs');
+    if (userId1 == userId2) throw new Error('Same userId Error!');
+    if (userId1 > userId2) {
+        let temp = +userId1;
+        userId1 = +userId2;
+        userId2 = temp;
+        isReceiver = false;
+    }
+    const response = await services.getCheckUserRela({ userId1, userId2, isReceiver });
+    return res.status(200).json(response);
+});
+
 const listFriend = asyncHandler(async (req, res) => {
     const { page, size, userId } = req.query;
     const { limit, offset } = pagi.getPagination(page, size);
@@ -167,4 +183,5 @@ module.exports = {
     unblockingUser,
     following,
     unfollowing,
+    getCheckUserRela,
 };

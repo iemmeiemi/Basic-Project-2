@@ -12,7 +12,6 @@ const register = (data) =>
     new Promise(async (resolve, reject) => {
         try {
             const { birthday, ...data2 } = data;
-            console.log(birthday);
             const response = await User.findOrCreate({
                 where: { email: data.email },
                 defaults: {
@@ -323,12 +322,12 @@ const editUserAccount = ({ userData, accountData }) =>
         }
     });
 
-    const getSearchUsers = ({q}) =>
+const getSearchUsers = ({ q }) =>
     new Promise(async (resolve, reject) => {
         try {
             const response = await User.findAll({
                 where: {
-                    fullName: { [Op.like]: `%${q}%` }
+                    fullName: { [Op.iLike]: `%${q}%` },
                 },
                 attributes: {
                     exclude: [
@@ -365,5 +364,5 @@ module.exports = {
     getUser,
     getUserAccount,
     editUserAccount,
-    getSearchUsers
+    getSearchUsers,
 };

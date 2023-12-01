@@ -21,7 +21,7 @@ function LeftBar() {
 
         if (isSuccess && data.data.success) toast.success(data.data.mes);
         if (isSuccess && !data.data.success) toast.error(data.data.mes);
-        if (isSuccess) window.location.reload();
+        if (isSuccess) window.location.pathname = '/signin';
     }, [isError, isSuccess]);
     // =====================================================================
     return (

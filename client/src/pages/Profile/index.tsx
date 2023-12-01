@@ -2,19 +2,27 @@ import { useMutation } from '@tanstack/react-query';
 import { useContext, useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import { toast } from 'react-toastify';
-import { getUserAccount } from '~/apis/user.api';
 
+import { getUserAccount, getCheckUserRela } from '~/apis/user.api';
 import EditProfile from './components/EditProfile';
 import ViewAllFriends from './components/ViewAllFriends';
 import { AuthContext } from '~/context/AuthContext';
 import AddFriendBtn from './components/AddFriendBtn';
+import UnAddFriendBtn from './components/UnAddFriendBtn';
+import AddFollowBtn from './components/AddFollowBtn';
+import UnFollowBtn from './components/UnFollowBtn';
+import AcceptFriendBtn from './components/AcceptFriendBtn';
+import DeclineFriendBtn from './components/DeclineFriendBtn';
+import UnFriendBtn from './components/UnFriendBtn';
 
 function Profile() {
     const { currentUser } = useContext(AuthContext);
     const [user, setUser]: any = useState({});
+    const [userRela, setUserRela]: any = useState({});
     const [showEditProfile, setShowEditProfile] = useState(false);
     const [showViewAllFriends, setShowViewAllFriends] = useState(false);
     const { userId }: any = useParams();
+
     // get user info
     const { mutate, isLoading, isPending, isError, error, isSuccess, data }: any = useMutation({
         mutationFn: () => {
@@ -30,8 +38,32 @@ function Profile() {
         if (isSuccess && data.data.success) setUser(data.data.data);
         if (isSuccess && !data.data.success) toast.error(data.data.mes);
     }, [isError, isSuccess]);
+
+    // Check relationship: friend-follow
+    const checkRelationship: any = useMutation({
+        mutationFn: () => {
+            return getCheckUserRela(userId);
+        },
+    });
+
+    useEffect(() => {
+        checkRelationship.isError && console.log(checkRelationship.error);
+        checkRelationship.isError &&
+            checkRelationship.error?.response?.data.mes &&
+            toast.error(checkRelationship.error?.response?.data.mes, { autoClose: false });
+        checkRelationship.isError &&
+            !checkRelationship.error?.response?.data.mes &&
+            toast.error(checkRelationship.error.message, { autoClose: false });
+
+        if (checkRelationship.isSuccess && checkRelationship.data.data.success)
+            setUserRela(checkRelationship.data.data.data);
+        if (checkRelationship.isSuccess && !checkRelationship.data.data.success)
+            console.log(checkRelationship.data.data.mes);
+    }, [checkRelationship.isError, checkRelationship.isSuccess]);
+    // Gọi api lần đầu
     useEffect(() => {
         mutate();
+        currentUser.id != userId && checkRelationship.mutate();
     }, []);
 
     return (
@@ -89,13 +121,21 @@ function Profile() {
                             <div className="mt-5 flex items-center justify-center gap-5">
                                 {currentUser && currentUser?.id !== user.id && (
                                     <>
-                                        <AddFriendBtn/>
-                                        <button
-                                            type="button"
-                                            className="text-white bg-blue-600 focus:bg-blue-800 font-medium rounded-lg text-sm px-5 py-2.5 me-2 mb-2 dark:bg-blue-600 dark:hover:bg-blue-700 focus:outline-none"
-                                        >
-                                            <i className="fa-solid fa-plus" /> Follow
-                                        </button>
+                                        {!userRela.friend && <AddFriendBtn callCheckRela={checkRelationship.mutate} />}
+                                        {userRela.friend === 'pending' && <UnAddFriendBtn setUserRela={setUserRela} />}
+                                        {userRela.friend === 'waiting' && (
+                                            <>
+                                                <AcceptFriendBtn callCheckRela={checkRelationship.mutate} />
+                                                <DeclineFriendBtn callCheckRela={checkRelationship.mutate} />
+                                            </>
+                                        )}
+                                        {userRela.friend === 'friend' && (
+                                            <UnFriendBtn setUserRela={setUserRela} />
+                                        )}
+                                        {!userRela.follow && <AddFollowBtn callCheckRela={checkRelationship.mutate} />}
+                                        {userRela.follow === 'follow' && (
+                                            <UnFollowBtn callCheckRela={checkRelationship.mutate} />
+                                        )}
                                     </>
                                 )}
                             </div>
@@ -124,16 +164,16 @@ function Profile() {
                                     </div>
                                     <div className="border-t border-gray-200">
                                         <div className="px-4 py-2">
-                                            <label className="text-gray-600">Working at:</label>
-                                            <span className="ml-2 text-gray-800">CNTT & TT Việt Hàn</span>
-                                        </div>
-                                        <div className="px-4 py-2">
                                             <label className="text-gray-600">Address:</label>
-                                            <span className="ml-2 text-gray-800">New York, USA</span>
+                                            <span className="ml-2 text-gray-800">{user.address}</span>
                                         </div>
                                         <div className="px-4 py-2">
-                                            <label className="text-gray-600">Email:</label>
-                                            <span className="ml-2 text-gray-800">john.doe@example.com</span>
+                                            <label className="text-gray-600">Study at:</label>
+                                            <span className="ml-2 text-gray-800">{user.studyAt}</span>
+                                        </div>
+                                        <div className="px-4 py-2">
+                                            <label className="text-gray-600">Working at:</label>
+                                            <span className="ml-2 text-gray-800">{user.workingAt}</span>
                                         </div>
                                     </div>
                                 </div>
