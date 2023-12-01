@@ -67,22 +67,69 @@ const updateUserRela = async (receiver, sender, friend, follow) => {
 
 /************  *************/
 //pagination, filter, sort, limit
-
-const listFriend = async (pack) =>
+//list friend, list pending
+const listFriend = async (pack, job) =>
     new Promise(async (resolve, reject) => {
-        const response = await UserRelationship.findAndCountAll({
-            where: {
-                [Op.and]: [
-                    { [Op.or]: [{ userId1: pack.userId }, { userId2: pack.userId }] },
-                    {
-                        friend: friendEnum.fr,
-                    },
-                ],
-            },
-            limit: pack.limit,
-            offset: pack.offset,
-        });
-        resolve(response);
+        try {
+            let whereClause;
+            switch (job) {
+                case 'friends':
+                    whereClause = {
+                        where: {
+                            [Op.and]: [
+                                { [Op.or]: [{ userId1: pack.userId }, { userId2: pack.userId }] },
+                                {
+                                    friend: friendEnum.fr,
+                                },
+                            ],
+                        },
+                    };
+                    break;
+
+                case 'pendingToMe':
+                    whereClause = {
+                        where: {
+                            [Op.or]: [
+                                {
+                                    [Op.and]: [{ userId1: pack.userId }, { friend: friendEnum.pd_nd_st }],
+                                },
+                                {
+                                    [Op.and]: [{ userId2: pack.userId }, { friend: friendEnum.pd_st_nd }],
+                                },
+                            ],
+                        },
+                    };
+                    break;
+
+                case 'mePending':
+                    whereClause = {
+                        where: {
+                            [Op.and]: [
+                                {
+                                    [Op.and]: [{ userId1: pack.userId }, { friend: friendEnum.pd_st_nd }],
+                                },
+                                {
+                                    [Op.and]: [{ userId2: pack.userId }, { friend: friendEnum.pd_nd_st }],
+                                },
+                            ],
+                        },
+                    };
+                    break;
+
+                default:
+                    break;
+            }
+            const response = await UserRelationship.findAndCountAll({
+                where: {
+                    ...whereClause,
+                },
+                limit: pack.limit,
+                offset: pack.offset,
+            });
+            resolve(response);
+        } catch (error) {
+            reject(error);
+        }
     })
         .then(async (data) => {
             try {
