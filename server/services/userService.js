@@ -281,7 +281,7 @@ const getUserAccount = (userId) =>
                 },
             });
             let gender;
-            switch (user.dataValues.gender) {
+            switch (user?.dataValues.gender) {
                 case 'Male':
                     gender = 0;
                     break;
@@ -293,7 +293,8 @@ const getUserAccount = (userId) =>
                     break;
             }
             const account = await Account.findByPk(userId);
-            const userInfo = { ...user.dataValues, ...account.dataValues, gender };
+            let userInfo;
+            if (user && account) userInfo = { ...user.dataValues, ...account.dataValues, gender };
             resolve({
                 success: !!user && !!account,
                 mes: user && account ? 'Successfully' : 'No users found',
@@ -322,6 +323,36 @@ const editUserAccount = ({ userData, accountData }) =>
         }
     });
 
+    const getSearchUsers = ({q}) =>
+    new Promise(async (resolve, reject) => {
+        try {
+            const response = await User.findAll({
+                where: {
+                    fullName: { [Op.like]: `%${q}%` }
+                },
+                attributes: {
+                    exclude: [
+                        'password',
+                        'passwordChangedAt',
+                        'passwordResetExprides',
+                        'passwordResetToken',
+                        'refreshToken',
+                        'interestedUsers',
+                        'email',
+                        'phone',
+                    ],
+                },
+            });
+            resolve({
+                success: response.length > 0,
+                mes: response.length > 0 ? 'Successfully' : 'No users found',
+                data: response.length > 0 && response,
+            });
+        } catch (error) {
+            reject(error);
+        }
+    });
+
 module.exports = {
     register,
     login,
@@ -334,4 +365,5 @@ module.exports = {
     getUser,
     getUserAccount,
     editUserAccount,
+    getSearchUsers
 };

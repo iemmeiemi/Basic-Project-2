@@ -12,6 +12,7 @@ router.put('/resetpassword', ctrls.resetPassword);
 router.get('/current', verifyAccessToken, ctrls.getCurrent);
 router.get('/logout', verifyAccessToken, ctrls.logout);
 
+router.get('/search',verifyAccessToken, ctrls.getSearchUsers);
 router.get('/:userId', ctrls.getUser);
 router.get('/profile/:userId', ctrls.getUserAccount);
 router.put('/profile',verifyAccessToken, ctrls.editUserAccount);

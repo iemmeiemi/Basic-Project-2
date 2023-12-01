@@ -7,6 +7,7 @@ import SignIn from '~/pages/SignIn';
 import ForgotPassword from '~/pages/ForgotPassword';
 import ResetPassword from '~/pages/ResetPassword';
 import Profile from '~/pages/Profile';
+import Search from '~/pages/Search';
 
 interface RouteType {
     path: string;
@@ -20,10 +21,9 @@ const publicRoutes: RouteType[] = [
     { path: '/signup', component: SignUp, layout: null },
     { path: '/forgotpassword', component: ForgotPassword, layout: null },
     { path: '/resetpassword/:resetToken', component: ResetPassword, layout: null },
-
-    { path: '/profile/:userId', component: Profile, layout: DefaultLayout },
+    { path: '/profile/:userId', component: Profile },
 ];
 
-const privateRoutes: RouteType[] = [];
+const privateRoutes: RouteType[] = [{ path: '/search', component: Search }];
 
 export { publicRoutes, privateRoutes };

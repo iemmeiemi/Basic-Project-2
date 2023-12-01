@@ -5,7 +5,7 @@ import 'react-toastify/dist/ReactToastify.css';
 import '@fortawesome/fontawesome-free/css/all.min.css';
 import 'flowbite';
 
-import { publicRoutes } from './routes';
+import { publicRoutes, privateRoutes } from './routes';
 import { DefaultLayout } from './components/Layout';
 import { AuthContext } from './context/AuthContext';
 import Home from './pages/Home';
@@ -24,7 +24,7 @@ function App() {
     })
     return (
         <Router>
-            <div className="App w-screen bg-[#e9e9e9] dark:bg-black dark:bg-opacity-80">
+            <div className="App w-screen h-screen bg-[#e9e9e9] dark:bg-black dark:bg-opacity-80  overflow-x-hidden">
                 <Routes>
                     <Route
                         key={0}
@@ -40,6 +40,23 @@ function App() {
                         }
                     />
                     {publicRoutes.map((route, index) => {
+                        let Layout: any = DefaultLayout;
+                        if (route.layout) Layout = route.layout;
+                        else if (route.layout === null) Layout = Fragment;
+                        const Page = route.component;
+                        return (
+                            <Route
+                                key={index}
+                                path={route.path}
+                                element={
+                                    <Layout>
+                                        <Page />
+                                    </Layout>
+                                }
+                            />
+                        );
+                    })}
+                    {currentUser && privateRoutes.map((route, index) => {
                         let Layout: any = DefaultLayout;
                         if (route.layout) Layout = route.layout;
                         else if (route.layout === null) Layout = Fragment;

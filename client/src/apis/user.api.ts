@@ -26,17 +26,35 @@ export const editUserAccount = (data: any) => {
 
 export const addFriend = (receiver: any) => {
     const accessToken = localStorage.getItem('accessToken') || 'null';
-    return toast.promise(http.post<any>(
-        `api/user-rela/add-friend2`,
+    return toast.promise(
+        http.post<any>(
+            `api/user-rela/add-friend2`,
+            {
+                receiver,
+            },
+            {
+                headers: {
+                    Authorization: `Bearer ${JSON.parse(accessToken)}`,
+                },
+            },
+        ),
         {
-            receiver,
+            pending: 'Add friend is pending',
         },
-        {
+    );
+};
+
+export const getSearchUsers = (q: any) => {
+    const accessToken = localStorage.getItem('accessToken') || 'null';
+    return toast.promise(
+        http.get<any>(`api/user/search`, {
             headers: {
                 Authorization: `Bearer ${JSON.parse(accessToken)}`,
             },
+            params: { q },
+        }),
+        {
+            pending: 'Add friend is pending',
         },
-    ),{
-        pending: 'Add friend is pending'
-    },);
+    );
 };

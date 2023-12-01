@@ -1,12 +1,19 @@
 import { useContext } from 'react';
 import { Link } from 'react-router-dom';
-import { AuthContext } from '~/context/AuthContext';
 
+import { AuthContext } from '~/context/AuthContext';
 import { DarkModeContext } from '~/context/DarkModeContext';
 
 function Header() {
     const { toggle, darkMode } = useContext(DarkModeContext);
     const { currentUser } = useContext(AuthContext);
+
+    const handelSearch = (e: any) => {
+        if (e.keyCode === 13 && e.target.value !== '') {
+            const encodedValue = encodeURIComponent(e.target.value);
+            window.location.href = `/search?q=${encodedValue}`;
+        }
+    };
 
     return (
         <>
@@ -53,7 +60,7 @@ function Header() {
                 </div>
             </nav>
             {/* THẺ MAIN */}
-            <nav className="fixed w-full top-0 flex items-center lg:justify-between flex-wrap px-6 py-4 border-b-2 dark:border-none bg-gray-50 dark:bg-white dark:bg-opacity-10 z-50">
+            <nav className="fixed w-full top-0 flex items-center lg:justify-between flex-wrap px-6 py-4 border-b-2 dark:border-none bg-gray-50 dark:bg-[#4b4b4b] z-50">
                 <Link to="/" className="flex items-center flex-shrink-0 text-text dark:text-textDark mr-6">
                     <span className="font-semibold text-xl tracking-tight">FConnect</span>
                 </Link>
@@ -69,6 +76,7 @@ function Header() {
                         type="text"
                         placeholder="Tìm kiếm..."
                         className="bg-transparent ml-2 placeholder-gray-500 text-gray-700 border-none focus:ring-0 p-0"
+                        onKeyUp={(e) => handelSearch(e)}
                     />
                 </div>
 

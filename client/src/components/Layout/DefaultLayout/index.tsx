@@ -21,11 +21,11 @@ function DefaultLayout({ children }: DefaultLayoutProps) {
                 </div>
             </div>
             <div className="md:grid w-screen md:grid-cols-5 gap-4">
-                <div className="">{/* <LeftBar /> */}</div>
-                <div className="content mt-2 p-4 md:col-span-3 rounded dark:bg-white dark:bg-opacity-5 overflow-y-auto">
+                <div className="md:col-span-1">{/* <LeftBar /> */}</div>
+                <div className="content mt-2 md:col-span-3 rounded dark:bg-white dark:bg-opacity-5">
                     {children}
                 </div>
-                <div>{/* <RightBar /> */}</div>
+                <div className='md:col-span-1'>{/* <RightBar /> */}</div>
             </div>
         </>
     );

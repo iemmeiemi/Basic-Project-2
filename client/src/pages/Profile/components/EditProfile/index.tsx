@@ -131,7 +131,7 @@ function EditProfile({ user, setShowEditProfile }: any) {
                     <div className="px-4 py-2 grid gap-4 lg:grid-cols-2">
                         <div className="flex items-center justify-between">
                             <label
-                                htmlFor="firstName"
+                                htmlFor="gender"
                                 className="block text-sm font-medium text-gray-900 dark:text-white"
                             >
                                 Gender:
