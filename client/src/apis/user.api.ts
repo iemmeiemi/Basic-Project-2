@@ -28,7 +28,7 @@ export const addFriend = (receiver: any) => {
     const accessToken = localStorage.getItem('accessToken') || 'null';
     return toast.promise(
         http.post<any>(
-            `api/user-rela/add-friend2`,
+            `api/user-rela/add-friend`,
             {
                 receiver,
             },

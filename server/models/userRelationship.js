@@ -43,7 +43,6 @@ module.exports = (sequelize, DataTypes) => {
                     'block_nd_st',
                     'block_both',
                 ]),
-
                 allowNull: true,
             },
             follow: { type: DataTypes.ENUM(['st_fl_nd', 'nd_fl_st', 'fl_both']), allowNull: true },
