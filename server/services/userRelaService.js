@@ -1,6 +1,6 @@
-const { Op } = require('sequelize');
+const { Op, Sequelize } = require('sequelize');
 const pagi = require('../helps/pagination');
-const { UserRelationship } = require('../models');
+const { UserRelationship, User } = require('../models');
 
 const friendEnum = {
     pd_st_nd: 'pending_st_nd',
@@ -67,7 +67,7 @@ const updateUserRela = async (receiver, sender, friend, follow) => {
 
 /************  *************/
 
-const getCheckUserRela = async ({ userId1, userId2, isReceiver }) =>
+const getCheckUserRela = async ({ userId1, userId2, isUser }) =>
     new Promise(async (resolve, reject) => {
         try {
             const response = await UserRelationship.findOne({
@@ -80,19 +80,19 @@ const getCheckUserRela = async ({ userId1, userId2, isReceiver }) =>
             if (response) {
                 switch (response.dataValues.friend) {
                     case friendEnum.pd_st_nd:
-                        friend = isReceiver ? 'pending' : 'waiting';
+                        friend = isUser ? 'pending' : 'waiting';
                         break;
                     case friendEnum.pd_nd_st:
-                        friend = isReceiver ? 'waiting' : 'pending';
+                        friend = isUser ? 'waiting' : 'pending';
                         break;
                     case friendEnum.fr:
                         friend = 'friend';
                         break;
                     case friendEnum.bl_st_nd:
-                        if (isReceiver) friend = 'blocking';
+                        if (isUser) friend = 'blocking';
                         break;
                     case friendEnum.bl_nd_st:
-                        if (!isReceiver) friend = 'blocking';
+                        if (!isUser) friend = 'blocking';
                         break;
                     case friendEnum.bl_b:
                         friend = 'blocking';
@@ -102,10 +102,10 @@ const getCheckUserRela = async ({ userId1, userId2, isReceiver }) =>
                 }
                 switch (response.dataValues.follow) {
                     case followEnum.st_fl_nd:
-                        if (isReceiver) follow = 'follow';
+                        if (isUser) follow = 'follow';
                         break;
                     case followEnum.nd_fl_st:
-                        if (!isReceiver) follow = 'follow';
+                        if (!isUser) follow = 'follow';
                         break;
                     case followEnum.fl_b:
                         follow = 'follow';
@@ -178,9 +178,7 @@ const listFriend = async (pack, job) =>
                     break;
             }
             const response = await UserRelationship.findAndCountAll({
-                where: {
-                    ...whereClause,
-                },
+                ...whereClause,
                 limit: pack.limit,
                 offset: pack.offset,
             });
@@ -202,8 +200,71 @@ const listFriend = async (pack, job) =>
             }
         })
         .catch((error) => {
-            reject(new Error('Cannot get Data!'));
+            return new Error('Cannot get Data!');
         });
+
+const listFriend2 = ({ userId, page, limit, offset }) =>
+    new Promise(async (resolve, reject) => {
+        try {
+            const pagination = limit
+                ? {
+                      limit,
+                      page,
+                  }
+                : {};
+            const response = await UserRelationship.findAll({
+                include: [
+                    {
+                        model: User,
+                        as: 'User1',
+                        attributes: {
+                            exclude: [
+                                'password',
+                                'passwordChangedAt',
+                                'passwordResetExprides',
+                                'passwordResetToken',
+                                'refreshToken',
+                                'interestedUsers',
+                            ],
+                        },
+                    },
+                    {
+                        model: User,
+                        as: 'User2',
+                        attributes: {
+                            exclude: [
+                                'password',
+                                'passwordChangedAt',
+                                'passwordResetExprides',
+                                'passwordResetToken',
+                                'refreshToken',
+                                'interestedUsers',
+                            ],
+                        },
+                    },
+                ],
+                where: {
+                    [Op.or]: [{ userId1: userId }, { userId2: userId }],
+                    friend: 'friends',
+                },
+                attributes: {
+                    exclude: ['userId1', 'userId2', 'friend', 'follow', 'createdAt', 'updatedAt'],
+                },
+                ...pagination,
+            });
+            const data = response.map((el) => {
+                if (el.dataValues.User1.id == userId) return el.dataValues.User2;
+                else return el.dataValues.User1;
+            });
+            resolve({
+                success: !!response,
+                mes: response ? 'succesfully!' : 'unsuccessfully!',
+                data: data,
+            });
+        } catch (error) {
+            reject(error);
+        }
+    });
 
 const findingUser = (name) =>
     new Promise(async (resolve, reject) => {
@@ -299,7 +360,7 @@ const addFriend2 = ({ userId1, userId2, ...data }) =>
                     ...data,
                 },
             });
-            if (response[0]) {
+            if (!response[1]) {
                 const response2 = await UserRelationship.update(
                     {
                         userId1,
@@ -317,7 +378,7 @@ const addFriend2 = ({ userId1, userId2, ...data }) =>
             }
 
             resolve({
-                success: !!response[1],
+                success: response[1],
                 mes: response[1] ? 'Successfully' : 'Cannot send',
             });
         } catch (error) {
@@ -436,7 +497,7 @@ const followingUser = (receiver, sender, job) =>
             switch (job) {
                 case 'follow':
                     {
-                        mess = 'Follow ';
+                        mess = 'Follow';
                         follow =
                             id1 === sender
                                 ? follow === followEnum.fl_b || follow === followEnum.nd_fl_st
@@ -477,8 +538,110 @@ const followingUser = (receiver, sender, job) =>
         }
     });
 
+const followUser = ({ userId1, userId2, follow }) =>
+    new Promise(async (resolve, reject) => {
+        try {
+            const response = await UserRelationship.findOrCreate({
+                where: { userId1, userId2 },
+                defaults: {
+                    userId1,
+                    userId2,
+                    follow,
+                },
+            });
+            if (!response[1]) {
+                if (response[0].dataValues.follow === followEnum.nd_fl_st) follow = followEnum.fl_b;
+                const response2 = await UserRelationship.update(
+                    {
+                        userId1,
+                        userId2,
+                        follow,
+                    },
+                    {
+                        where: { userId1, userId2 },
+                    },
+                );
+                resolve({
+                    success: !!response2,
+                    mes: response2 ? 'Successfully' : 'Cannot send',
+                });
+            }
+
+            resolve({
+                success: response[1],
+                mes: response[1] ? 'Successfully' : 'Cannot send',
+            });
+        } catch (error) {
+            reject(error);
+        }
+    });
+
+const unfollowUser = async ({ userId1, userId2, isUser }) =>
+    new Promise(async (resolve, reject) => {
+        try {
+            const response = await UserRelationship.findOne({
+                where: {
+                    userId1,
+                    userId2,
+                },
+            });
+            let friend, follow;
+            if (response) {
+                friend = response.dataValues.friend;
+                switch (response.dataValues.follow) {
+                    case followEnum.st_fl_nd:
+                        if (isUser) follow = null;
+                        break;
+                    case followEnum.nd_fl_st:
+                        if (!isUser) follow = null;
+                        break;
+                    case followEnum.fl_b:
+                        follow = followEnum.nd_fl_st;
+                        if (!isUser) follow = followEnum.st_fl_nd;
+                        break;
+                    default:
+                        break;
+                }
+                if (!friend && !follow) {
+                    const response2 = await UserRelationship.destroy({
+                        where: {
+                            userId1,
+                            userId2,
+                        },
+                    });
+                    resolve({
+                        success: !!response2,
+                        mes: response2 ? 'Successfully' : 'Cannot unfollow',
+                    });
+                }
+                const response2 = await UserRelationship.update(
+                    {
+                        follow,
+                    },
+                    {
+                        where: {
+                            userId1,
+                            userId2,
+                        },
+                    },
+                );
+                resolve({
+                    success: !!response2,
+                    mes: response2 ? 'Successfully' : 'Cannot unfollow',
+                });
+            }
+            resolve({
+                success: !!response,
+                mes: response ? 'Successfully' : 'Cannot unfollow',
+            });
+        } catch (error) {
+            reject(error);
+        }
+    });
+
 module.exports = {
     listFriend,
+    listFriend2,
     friendsRecommend,
     findingUser,
     addFriend,
@@ -487,5 +650,7 @@ module.exports = {
     unFriend,
     blockingUser,
     followingUser,
+    followUser,
+    unfollowUser,
     getCheckUserRela,
 };

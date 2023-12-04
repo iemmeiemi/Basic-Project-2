@@ -3,13 +3,13 @@ import { useEffect } from 'react';
 import { useParams } from 'react-router-dom';
 import { toast } from 'react-toastify';
 
-import { addFriend } from '~/apis/user.api';
+import { unfollowUser } from '~/apis/user.api';
 
 function UnFollowBtn({ callCheckRela }: any) {
     const { userId }: any = useParams();
     const { mutate, isLoading, isPending, isError, error, isSuccess, data }: any = useMutation({
         mutationFn: () => {
-            return addFriend(userId);
+            return unfollowUser(userId);
         },
     });
 

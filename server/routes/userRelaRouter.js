@@ -6,6 +6,7 @@ router.get('/check-user-relationship', verifyAccessToken, ctrls.getCheckUserRela
 
 //List Friend
 router.get('/list-friend', ctrls.listFriend);
+router.get('/list-friend2', ctrls.listFriend2);
 router.get('/list-pending-to-me', verifyAccessToken, ctrls.listFriend);
 router.get('/list-me-pending', verifyAccessToken, ctrls.listFriend);
 //router.get('/find', ctrls.listFriend); //sort by name
@@ -26,6 +27,8 @@ router.put('/unblock', verifyAccessToken, ctrls.unblockingUser);
 
 //Follow rela
 router.put('/follow', verifyAccessToken, ctrls.following);
+router.put('/follow-user', verifyAccessToken, ctrls.followUser);
 router.put('/unfollow', verifyAccessToken, ctrls.unfollowing);
+router.put('/unfollow-user', verifyAccessToken, ctrls.unfollowUser);
 
 module.exports = router;

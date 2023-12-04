@@ -1,17 +1,19 @@
-import { useContext } from 'react';
-import { Link } from 'react-router-dom';
+import { useContext, useState } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
 
 import { AuthContext } from '~/context/AuthContext';
 import { DarkModeContext } from '~/context/DarkModeContext';
 
 function Header() {
+    const navigate = useNavigate();
+    const [query, setQuery] = useState('');
     const { toggle, darkMode } = useContext(DarkModeContext);
     const { currentUser } = useContext(AuthContext);
 
     const handelSearch = (e: any) => {
-        if (e.keyCode === 13 && e.target.value !== '') {
+        if (e.keyCode === 13 && query !== '') {
             const encodedValue = encodeURIComponent(e.target.value);
-            window.location.href = `/search?q=${encodedValue}`;
+            navigate(`/search?q=${encodedValue}`);
         }
     };
 
@@ -76,6 +78,7 @@ function Header() {
                         type="text"
                         placeholder="Tìm kiếm..."
                         className="bg-transparent ml-2 placeholder-gray-500 text-gray-700 border-none focus:ring-0 p-0"
+                        onChange={(e) => setQuery(e.target.value)}
                         onKeyUp={(e) => handelSearch(e)}
                     />
                 </div>
@@ -93,9 +96,9 @@ function Header() {
                         {currentUser ? (
                             <div className="relative w-10 h-10 overflow-hidden bg-gray-100 rounded-full dark:bg-gray-600">
                                 {currentUser?.avatar ? (
-                                    <a href={'/profile/' + currentUser.id}>
+                                    <Link to={'/profile/' + currentUser.id}>
                                         <img src={currentUser?.avatar} alt="" />
-                                    </a>
+                                    </Link>
                                 ) : (
                                     <svg
                                         className="absolute w-12 h-12 text-gray-400 dark:text-textDark -left-1"

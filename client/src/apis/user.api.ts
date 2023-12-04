@@ -29,28 +29,27 @@ export const editUserAccount = (data: any) => {
     );
 };
 
-export const getCheckUserRela = (userId2: any) => {
+export const getCheckUserRela = (id: any) => {
     const accessToken = localStorage.getItem('accessToken') || 'null';
     return http.get<any>(`api/user-rela/check-user-relationship`, {
         headers: {
             Authorization: `Bearer ${JSON.parse(accessToken)}`,
         },
-        params: { userId2 },
+        params: { id },
     });
 };
 // sửa thành phương thức get
-export const addFriend = (receiver: any) => {
+export const addFriend = (id: any) => {
     const accessToken = localStorage.getItem('accessToken') || 'null';
     return toast.promise(
         http.post<any>(
             `api/user-rela/add-friend2`,
-            {
-                receiver,
-            },
+            {},
             {
                 headers: {
                     Authorization: `Bearer ${JSON.parse(accessToken)}`,
                 },
+                params: { id },
             },
         ),
         {
@@ -101,6 +100,34 @@ export const unfriendRequest = (id: any) => {
     );
 };
 
+export const followUser = (id: any) => {
+    const accessToken = localStorage.getItem('accessToken') || 'null';
+    return http.put<any>(
+        `api/user-rela/follow-user`,
+        {},
+        {
+            headers: {
+                Authorization: `Bearer ${JSON.parse(accessToken)}`,
+            },
+            params: { id },
+        },
+    );
+};
+
+export const unfollowUser = (id: any) => {
+    const accessToken = localStorage.getItem('accessToken') || 'null';
+    return http.put<any>(
+        `api/user-rela/unfollow-user`,
+        {},
+        {
+            headers: {
+                Authorization: `Bearer ${JSON.parse(accessToken)}`,
+            },
+            params: { id },
+        },
+    );
+};
+
 export const getSearchUsers = (q: any) => {
     const accessToken = localStorage.getItem('accessToken') || 'null';
     return toast.promise(
@@ -112,6 +139,16 @@ export const getSearchUsers = (q: any) => {
         }),
         {
             pending: 'Search is pending',
+        },
+    );
+};
+
+export const listUserFriends = ({ userId, page = 0, size }: any) => {
+    const accessToken = localStorage.getItem('accessToken') || 'null';
+    return http.get<any>(
+        `api/user-rela/list-friend2`,
+        {
+            params: { userId, page, size },
         },
     );
 };

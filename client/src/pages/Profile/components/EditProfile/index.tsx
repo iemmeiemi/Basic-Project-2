@@ -51,7 +51,6 @@ function EditProfile({ user, setShowEditProfile }: any) {
                 ...inputs,
                 birthday: selectedDate,
             });
-        console.log(selectedDate);
     };
 
     const handleClose = (state: boolean) => {

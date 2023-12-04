@@ -28,17 +28,17 @@ const checkUserId = (receiver, sender) => {
 
 const getCheckUserRela = asyncHandler(async (req, res) => {
     let userId1 = req.user.id;
-    let { userId2 } = req.query;
-    let isReceiver = true;
+    let userId2 = req.query.id;
+    let isUser = true;
     if (!userId1 || !userId2) throw new Error('Missing inputs');
     if (userId1 == userId2) throw new Error('Same userId Error!');
     if (userId1 > userId2) {
         let temp = +userId1;
         userId1 = +userId2;
         userId2 = temp;
-        isReceiver = false;
+        isUser = false;
     }
-    const response = await services.getCheckUserRela({ userId1, userId2, isReceiver });
+    const response = await services.getCheckUserRela({ userId1, userId2, isUser });
     return res.status(200).json(response);
 });
 
@@ -47,6 +47,13 @@ const listFriend = asyncHandler(async (req, res) => {
     const { limit, offset } = pagi.getPagination(page, size);
     const pack = { page, limit, offset, userId };
     const response = await services.listFriend(pack, 'friends');
+    return res.status(200).json(response);
+});
+
+const listFriend2 = asyncHandler(async (req, res) => {
+    const { page, size, userId } = req.query;
+    const { limit, offset } = pagi.getPagination(page, size);
+    const response = await services.listFriend2({ page, limit, offset, userId });
     return res.status(200).json(response);
 });
 
@@ -86,17 +93,17 @@ const addFriend = asyncHandler(async (req, res) => {
 });
 
 const addFriend2 = asyncHandler(async (req, res) => {
-    const sender = req.user.id;
-    const receiver = req.body.receiver;
-    checkUserId(receiver, sender);
+    let userId1 = req.user.id;
+    let userId2 = req.query.id;
+    if (!userId1 || !userId2) throw new Error('Missing inputs');
+    if (userId1 == userId2) throw new Error('Same userId Error!');
     //userId1 sẽ nhỏ hơn userId2
-    let userId1 = +sender;
-    let userId2 = +receiver;
     let friend = friendEnum.pd_st_nd;
     let follow = followEnum.st_fl_nd;
-    if (+sender > +receiver) {
-        userId1 = +receiver;
-        userId2 = +sender;
+    if (userId1 > userId2) {
+        let tmp = userId1;
+        userId1 = userId2;
+        userId2 = tmp;
         friend = friendEnum.pd_nd_st;
         follow = followEnum.nd_fl_st;
     }
@@ -160,6 +167,23 @@ const following = asyncHandler(async (req, res) => {
     return res.status(200).json(response);
 });
 
+const followUser = asyncHandler(async (req, res) => {
+    let userId1 = req.user.id;
+    let userId2 = req.query.id;
+    if (!userId1 || !userId2) throw new Error('Missing inputs');
+    if (userId1 == userId2) throw new Error('Same userId Error!');
+    //userId1 sẽ nhỏ hơn userId2
+    let follow = followEnum.st_fl_nd;
+    if (userId1 > userId2) {
+        let tmp = userId1;
+        userId1 = userId2;
+        userId2 = tmp;
+        follow = followEnum.nd_fl_st;
+    }
+    const response = await services.followUser({ userId1, userId2, follow });
+    return res.status(200).json(response);
+});
+
 const unfollowing = asyncHandler(async (req, res) => {
     const sender = req.query.id;
     const receiver = req.user.id;
@@ -169,8 +193,25 @@ const unfollowing = asyncHandler(async (req, res) => {
     return res.status(200).json(response);
 });
 
+const unfollowUser = asyncHandler(async (req, res) => {
+    let userId1 = req.user.id;
+    let userId2  = req.query.id;
+    let isUser = true;
+    if (!userId1 || !userId2) throw new Error('Missing inputs');
+    if (userId1 == userId2) throw new Error('Same userId Error!');
+    if (userId1 > userId2) {
+        let temp = +userId1;
+        userId1 = +userId2;
+        userId2 = temp;
+        isUser = false;
+    }
+    const response = await services.unfollowUser({ userId1, userId2, isUser });
+    return res.status(200).json(response);
+});
+
 module.exports = {
     listFriend,
+    listFriend2,
     listPendingToMe,
     listMePending,
     friendsRecommend,
@@ -182,6 +223,8 @@ module.exports = {
     blockingUser,
     unblockingUser,
     following,
+    followUser,
     unfollowing,
+    unfollowUser,
     getCheckUserRela,
 };

@@ -18,7 +18,7 @@ function Search() {
 
     useEffect(() => {
         mutate();
-    }, []);
+    }, [q]);
 
     useEffect(() => {
         isError && console.log(error);
@@ -62,12 +62,6 @@ function Search() {
                                                                 </div>
                                                             </div>
                                                         </Link>
-                                                        <button
-                                                            type="button"
-                                                            className="text-white bg-blue-600 focus:bg-blue-800 font-medium rounded-lg text-sm px-5 py-2.5 me-2 mb-2 dark:bg-blue-600 dark:hover:bg-blue-700 focus:outline-none"
-                                                        >
-                                                            <i className="fa-solid fa-user-plus" /> Add friend
-                                                        </button>
                                                     </div>
                                                 </div>
                                             </div>

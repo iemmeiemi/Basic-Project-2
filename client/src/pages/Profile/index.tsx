@@ -1,9 +1,9 @@
 import { useMutation } from '@tanstack/react-query';
 import { useContext, useEffect, useState } from 'react';
-import { useParams } from 'react-router-dom';
+import { Link, useParams } from 'react-router-dom';
 import { toast } from 'react-toastify';
 
-import { getUserAccount, getCheckUserRela } from '~/apis/user.api';
+import { getUserAccount, getCheckUserRela, listUserFriends } from '~/apis/user.api';
 import EditProfile from './components/EditProfile';
 import ViewAllFriends from './components/ViewAllFriends';
 import { AuthContext } from '~/context/AuthContext';
@@ -14,11 +14,13 @@ import UnFollowBtn from './components/UnFollowBtn';
 import AcceptFriendBtn from './components/AcceptFriendBtn';
 import DeclineFriendBtn from './components/DeclineFriendBtn';
 import UnFriendBtn from './components/UnFriendBtn';
+import { User } from '~/types/user.type';
 
 function Profile() {
     const { currentUser } = useContext(AuthContext);
     const [user, setUser]: any = useState({});
     const [userRela, setUserRela]: any = useState({});
+    const [friendsList, setFriendsList]: any = useState([]);
     const [showEditProfile, setShowEditProfile] = useState(false);
     const [showViewAllFriends, setShowViewAllFriends] = useState(false);
     const { userId }: any = useParams();
@@ -57,14 +59,41 @@ function Profile() {
 
         if (checkRelationship.isSuccess && checkRelationship.data.data.success)
             setUserRela(checkRelationship.data.data.data);
-        if (checkRelationship.isSuccess && !checkRelationship.data.data.success)
+        if (checkRelationship.isSuccess && !checkRelationship.data.data.success) {
+            setUserRela({});
             console.log(checkRelationship.data.data.mes);
+        }
     }, [checkRelationship.isError, checkRelationship.isSuccess]);
+
+    //Lấy danh sách bạn bè của user
+    const listFriends: any = useMutation({
+        mutationFn: () => {
+            return listUserFriends({ userId, size: 6 });
+        },
+    });
+
+    useEffect(() => {
+        listFriends.isError && console.log(listFriends.error);
+        listFriends.isError &&
+            listFriends.error?.response?.data.mes &&
+            toast.error(listFriends.error?.response?.data.mes, { autoClose: false });
+        listFriends.isError &&
+            !listFriends.error?.response?.data.mes &&
+            toast.error(listFriends.error.message, { autoClose: false });
+
+        if (listFriends.isSuccess && listFriends.data.data.success) setFriendsList(listFriends.data.data.data);
+        if (listFriends.isSuccess && !listFriends.data.data.success) {
+            setFriendsList([]);
+            console.log(listFriends.data.data.mes);
+        }
+    }, [listFriends.isError, listFriends.isSuccess]);
+
     // Gọi api lần đầu
     useEffect(() => {
         mutate();
+        listFriends.mutate();
         currentUser.id != userId && checkRelationship.mutate();
-    }, []);
+    }, [userId,showEditProfile]);
 
     return (
         <>
@@ -106,7 +135,7 @@ function Profile() {
                         </div>
                         <div className="mt-5 p-4">
                             <h1 className="text-2xl font-bold text-gray-800 text-center mt-2">{user.fullName}</h1>
-                            <p className="text-gray-600 text-center">Web Developer</p>
+                            <p className="text-gray-600 text-center">{user.role}</p>
                             <div className="relative">
                                 <div className="mt-5 px-10 border-gray-200 text-gray-600 text-center">
                                     {user.biography || 'Write biography'}
@@ -129,9 +158,7 @@ function Profile() {
                                                 <DeclineFriendBtn callCheckRela={checkRelationship.mutate} />
                                             </>
                                         )}
-                                        {userRela.friend === 'friend' && (
-                                            <UnFriendBtn setUserRela={setUserRela} />
-                                        )}
+                                        {userRela.friend === 'friend' && <UnFriendBtn setUserRela={setUserRela} />}
                                         {!userRela.follow && <AddFollowBtn callCheckRela={checkRelationship.mutate} />}
                                         {userRela.follow === 'follow' && (
                                             <UnFollowBtn callCheckRela={checkRelationship.mutate} />
@@ -188,66 +215,26 @@ function Profile() {
                                         </div>
                                         <div className="border-t border-gray-200">
                                             <div className="px-4 py-2 grid grid-cols-3">
-                                                <div className="mx-auto flex-cow items-center justify-center">
-                                                    <img
-                                                        className="mx-auto w-20 h-20 rounded"
-                                                        src="https://scontent.fdad3-6.fna.fbcdn.net/v/t39.30808-6/405296117_2903850576419341_2491313395414210813_n.jpg?stp=dst-jpg_p600x600&_nc_cat=110&ccb=1-7&_nc_sid=5f2048&_nc_ohc=qzeatfqWRXoAX8V4eC2&_nc_ht=scontent.fdad3-6.fna&oh=00_AfD8yeezhu14NwrEvwE2MEjYtv2Ao5yDHa36jylmo434Gw&oe=656B75D4"
-                                                        alt="Large avatar"
-                                                    />
-                                                    <div className="text-xs md:text-base font-bold whitespace-nowrap overflow-hidden overflow-ellipsis w-24 text-center">
-                                                        Nguyễn Mai
-                                                    </div>
-                                                </div>
-                                                <div className="mx-auto flex-cow items-center justify-center">
-                                                    <img
-                                                        className="mx-auto w-20 h-20 rounded"
-                                                        src="https://scontent.fdad3-6.fna.fbcdn.net/v/t39.30808-6/405296117_2903850576419341_2491313395414210813_n.jpg?stp=dst-jpg_p600x600&_nc_cat=110&ccb=1-7&_nc_sid=5f2048&_nc_ohc=qzeatfqWRXoAX8V4eC2&_nc_ht=scontent.fdad3-6.fna&oh=00_AfD8yeezhu14NwrEvwE2MEjYtv2Ao5yDHa36jylmo434Gw&oe=656B75D4"
-                                                        alt="Large avatar"
-                                                    />
-                                                    <div className="text-xs md:text-base font-bold whitespace-nowrap overflow-hidden overflow-ellipsis w-24 text-center">
-                                                        Nguyễn Mai
-                                                    </div>
-                                                </div>
-                                                <div className="mx-auto flex-cow items-center justify-center">
-                                                    <img
-                                                        className="mx-auto w-20 h-20 rounded"
-                                                        src="https://scontent.fdad3-6.fna.fbcdn.net/v/t39.30808-6/405296117_2903850576419341_2491313395414210813_n.jpg?stp=dst-jpg_p600x600&_nc_cat=110&ccb=1-7&_nc_sid=5f2048&_nc_ohc=qzeatfqWRXoAX8V4eC2&_nc_ht=scontent.fdad3-6.fna&oh=00_AfD8yeezhu14NwrEvwE2MEjYtv2Ao5yDHa36jylmo434Gw&oe=656B75D4"
-                                                        alt="Large avatar"
-                                                    />
-                                                    <div className="text-xs md:text-base font-bold whitespace-nowrap overflow-hidden overflow-ellipsis w-24 text-center">
-                                                        Nguyễn Mai
-                                                    </div>
-                                                </div>
-                                                <div className="mx-auto flex-cow items-center justify-center">
-                                                    <img
-                                                        className="mx-auto w-20 h-20 rounded"
-                                                        src="https://scontent.fdad3-6.fna.fbcdn.net/v/t39.30808-6/405296117_2903850576419341_2491313395414210813_n.jpg?stp=dst-jpg_p600x600&_nc_cat=110&ccb=1-7&_nc_sid=5f2048&_nc_ohc=qzeatfqWRXoAX8V4eC2&_nc_ht=scontent.fdad3-6.fna&oh=00_AfD8yeezhu14NwrEvwE2MEjYtv2Ao5yDHa36jylmo434Gw&oe=656B75D4"
-                                                        alt="Large avatar"
-                                                    />
-                                                    <div className="text-xs md:text-base font-bold whitespace-nowrap overflow-hidden overflow-ellipsis w-24 text-center">
-                                                        Nguyễn Mai
-                                                    </div>
-                                                </div>
-                                                <div className="mx-auto flex-cow items-center justify-center">
-                                                    <img
-                                                        className="mx-auto w-20 h-20 rounded"
-                                                        src="https://scontent.fdad3-6.fna.fbcdn.net/v/t39.30808-6/405296117_2903850576419341_2491313395414210813_n.jpg?stp=dst-jpg_p600x600&_nc_cat=110&ccb=1-7&_nc_sid=5f2048&_nc_ohc=qzeatfqWRXoAX8V4eC2&_nc_ht=scontent.fdad3-6.fna&oh=00_AfD8yeezhu14NwrEvwE2MEjYtv2Ao5yDHa36jylmo434Gw&oe=656B75D4"
-                                                        alt="Large avatar"
-                                                    />
-                                                    <div className="text-xs md:text-base font-bold whitespace-nowrap overflow-hidden overflow-ellipsis w-24 text-center">
-                                                        Nguyễn Mai
-                                                    </div>
-                                                </div>
-                                                <div className="mx-auto flex-cow items-center justify-center">
-                                                    <img
-                                                        className="mx-auto w-20 h-20 rounded"
-                                                        src="https://scontent.fdad3-6.fna.fbcdn.net/v/t39.30808-6/405296117_2903850576419341_2491313395414210813_n.jpg?stp=dst-jpg_p600x600&_nc_cat=110&ccb=1-7&_nc_sid=5f2048&_nc_ohc=qzeatfqWRXoAX8V4eC2&_nc_ht=scontent.fdad3-6.fna&oh=00_AfD8yeezhu14NwrEvwE2MEjYtv2Ao5yDHa36jylmo434Gw&oe=656B75D4"
-                                                        alt="Large avatar"
-                                                    />
-                                                    <div className="text-xs md:text-base font-bold whitespace-nowrap overflow-hidden overflow-ellipsis w-24 text-center">
-                                                        Nguyễn Mai
-                                                    </div>
-                                                </div>
+                                                {friendsList.length > 0 &&
+                                                    friendsList.map((el: User) => (
+                                                        <Link
+                                                            to={`/profile/${el.id}`}
+                                                            key={el.id}
+                                                            className="mx-auto flex-cow items-center justify-center"
+                                                        >
+                                                            <img
+                                                                className="mx-auto w-20 h-20 rounded"
+                                                                src={
+                                                                    el.avatar ||
+                                                                    'https://scontent.fdad3-6.fna.fbcdn.net/v/t39.30808-6/405296117_2903850576419341_2491313395414210813_n.jpg?stp=dst-jpg_p600x600&_nc_cat=110&ccb=1-7&_nc_sid=5f2048&_nc_ohc=qzeatfqWRXoAX8V4eC2&_nc_ht=scontent.fdad3-6.fna&oh=00_AfD8yeezhu14NwrEvwE2MEjYtv2Ao5yDHa36jylmo434Gw&oe=656B75D4'
+                                                                }
+                                                                alt="Large avatar"
+                                                            />
+                                                            <div className="text-xs md:text-base font-bold whitespace-nowrap overflow-hidden overflow-ellipsis w-24 text-center">
+                                                                {el.fullName}
+                                                            </div>
+                                                        </Link>
+                                                    ))}
                                             </div>
                                         </div>
                                     </div>

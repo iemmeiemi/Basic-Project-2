@@ -22,5 +22,5 @@ Content-Type: application/json
 GET http://localhost:5000/api/user/current
 Content-Type: application/json
 ###
-GET http://localhost:5000/api/user/logout
+GET http://localhost:5000/api/user-rela/list-friend2?userId=1701697707
 Content-Type: application/json
