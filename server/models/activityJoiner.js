@@ -10,8 +10,8 @@ module.exports = (sequelize, DataTypes) => {
          */
         static associate(models) {
             // define association here
-            ActivityJoiner.belongsTo(models.User, { foreignKey: 'joinerId', targetKey: 'id' });
-            ActivityJoiner.belongsTo(models.Activity, { foreignKey: 'activityId', targetKey: 'id' });
+            ActivityJoiner.belongsTo(models.User, { foreignKey: 'joinerId', targetKey: 'id', as: 'joiner' });
+            ActivityJoiner.belongsTo(models.Activity, { foreignKey: 'activityId', targetKey: 'id', as: 'activity' });
         }
     }
     ActivityJoiner.init(

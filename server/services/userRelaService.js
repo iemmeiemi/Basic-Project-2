@@ -1,6 +1,7 @@
 const { Op, Sequelize } = require('sequelize');
 const pagi = require('../helps/pagination');
 const { UserRelationship, User } = require('../models');
+const sendNotification = require('../utils/sendNotification');
 
 const friendEnum = {
     pd_st_nd: 'pending_st_nd',
@@ -203,20 +204,14 @@ const listFriend = async (pack, job) =>
             return new Error('Cannot get Data!');
         });
 
-const listFriend2 = ({ userId, page, limit, offset }) =>
+const listFriend2 = ({ userId, pagination }) =>
     new Promise(async (resolve, reject) => {
         try {
-            const pagination = limit
-                ? {
-                      limit,
-                      page,
-                  }
-                : {};
             const response = await UserRelationship.findAll({
                 include: [
                     {
                         model: User,
-                        as: 'User1',
+                        as: 'user1',
                         attributes: {
                             exclude: [
                                 'password',
@@ -230,7 +225,7 @@ const listFriend2 = ({ userId, page, limit, offset }) =>
                     },
                     {
                         model: User,
-                        as: 'User2',
+                        as: 'user2',
                         attributes: {
                             exclude: [
                                 'password',
@@ -253,8 +248,8 @@ const listFriend2 = ({ userId, page, limit, offset }) =>
                 ...pagination,
             });
             const data = response.map((el) => {
-                if (el.dataValues.User1.id == userId) return el.dataValues.User2;
-                else return el.dataValues.User1;
+                if (el.dataValues.user1.id == userId) return el.dataValues.user2;
+                else return el.dataValues.user1;
             });
             resolve({
                 success: !!response,
@@ -265,6 +260,50 @@ const listFriend2 = ({ userId, page, limit, offset }) =>
             reject(error);
         }
     });
+
+// const getUserIdFollowAndRela = ({ userId, pagination }) =>
+//     new Promise(async (resolve, reject) => {
+//         try {
+//             const response = await UserRelationship.findAll({
+//                 where: {
+//                     [Op.or]: [
+//                         {
+//                             userId1: userId,
+//                             follow: {
+//                                 [Op.or]: [followEnum.fl_b, followEnum.st_fl_nd],
+//                             },
+//                         },
+//                         {
+//                             userId2: userId,
+//                             follow: {
+//                                 [Op.or]: [followEnum.fl_b, followEnum.nd_fl_st],
+//                             },
+//                         },
+//                     ],
+//                 },
+//                 attributes: {
+//                     exclude: ['createdAt', 'updatedAt'],
+//                 },
+//                 ...pagination,
+//             });
+//             const data = response.map((el) => {
+//                 if (el.dataValues.user1.id == userId) {
+//                     const { userId1, ...data } = el.dataValues;
+//                     return data;
+//                 } else {
+//                     const { userId2, ...data } = el.dataValues;
+//                     return data;
+//                 }
+//             });
+//             resolve({
+//                 success: !!response,
+//                 mes: response ? 'succesfully!' : 'unsuccessfully!',
+//                 data: data,
+//             });
+//         } catch (error) {
+//             reject(error);
+//         }
+//     });
 
 const findingUser = (name) =>
     new Promise(async (resolve, reject) => {
@@ -349,7 +388,7 @@ const addFriend = (receiver, sender, job) =>
         }
     });
 
-const addFriend2 = ({ userId1, userId2, ...data }) =>
+const addFriend2 = ({ userId1, userId2, isUser, ...data }) =>
     new Promise(async (resolve, reject) => {
         try {
             const response = await UserRelationship.findOrCreate({
@@ -376,7 +415,9 @@ const addFriend2 = ({ userId1, userId2, ...data }) =>
                     mes: response2 ? 'Successfully' : 'Cannot send',
                 });
             }
-
+            const senderId = isUser ? userId1 : userId2;
+            const receiverId = isUser ? userId2 : userId1;
+            sendNotification.addFriend({ senderId, receiverId });
             resolve({
                 success: response[1],
                 mes: response[1] ? 'Successfully' : 'Cannot send',
@@ -538,7 +579,7 @@ const followingUser = (receiver, sender, job) =>
         }
     });
 
-const followUser = ({ userId1, userId2, follow }) =>
+const followUser = ({ userId1, userId2, isUser, follow }) =>
     new Promise(async (resolve, reject) => {
         try {
             const response = await UserRelationship.findOrCreate({

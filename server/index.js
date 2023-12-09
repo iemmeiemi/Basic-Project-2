@@ -3,7 +3,7 @@ const cookieParser = require('cookie-parser');
 const { createServer } = require('http');
 const cors = require('cors');
 require('dotenv').config();
-// require('./config/redis');
+require('./config/redis');
 
 const db = require('./models');
 const routes = require('./routes');

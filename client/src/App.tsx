@@ -10,8 +10,6 @@ import { DefaultLayout } from './components/Layout';
 import { AuthContext } from './context/AuthContext';
 import Home from './pages/Home';
 
-const SERVER_URL: string = process.env.REACT_APP_SERVER_URL ?? 'http://localhost:5000/';
-
 function App() {
     const { currentUser } = useContext(AuthContext);
     window.addEventListener('offline', function(){

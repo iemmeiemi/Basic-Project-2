@@ -52,8 +52,8 @@ const listFriend = asyncHandler(async (req, res) => {
 
 const listFriend2 = asyncHandler(async (req, res) => {
     const { page, size, userId } = req.query;
-    const { limit, offset } = pagi.getPagination(page, size);
-    const response = await services.listFriend2({ page, limit, offset, userId });
+    const {pagination, offset} = pagi.getPagination(page, size);
+    const response = await services.listFriend2({ page, userId, pagination, offset });
     return res.status(200).json(response);
 });
 
@@ -97,6 +97,7 @@ const addFriend2 = asyncHandler(async (req, res) => {
     let userId2 = req.query.id;
     if (!userId1 || !userId2) throw new Error('Missing inputs');
     if (userId1 == userId2) throw new Error('Same userId Error!');
+    let isUser = true;
     //userId1 sẽ nhỏ hơn userId2
     let friend = friendEnum.pd_st_nd;
     let follow = followEnum.st_fl_nd;
@@ -106,8 +107,9 @@ const addFriend2 = asyncHandler(async (req, res) => {
         userId2 = tmp;
         friend = friendEnum.pd_nd_st;
         follow = followEnum.nd_fl_st;
+        isUser = false;
     }
-    const response = await services.addFriend2({ userId1, userId2, friend, follow });
+    const response = await services.addFriend2({ userId1, userId2, isUser, friend, follow });
     return res.status(200).json(response);
 });
 
@@ -195,7 +197,7 @@ const unfollowing = asyncHandler(async (req, res) => {
 
 const unfollowUser = asyncHandler(async (req, res) => {
     let userId1 = req.user.id;
-    let userId2  = req.query.id;
+    let userId2 = req.query.id;
     let isUser = true;
     if (!userId1 || !userId2) throw new Error('Missing inputs');
     if (userId1 == userId2) throw new Error('Same userId Error!');

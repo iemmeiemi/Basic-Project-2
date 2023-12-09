@@ -36,6 +36,32 @@ function LeftBar() {
                     <ul className="space-y-2 font-medium">
                         <li>
                             <Link
+                                to={'/profile/' + currentUser?.id}
+                                className="flex items-center p-2 text-gray-900 rounded-lg dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700 group"
+                            >
+                                <div className="relative w-10 h-10 overflow-hidden bg-gray-100 rounded-full dark:bg-gray-600">
+                                    {currentUser?.avatar ? (
+                                        <img src={currentUser?.avatar} alt="" />
+                                    ) : (
+                                        <svg
+                                            className="absolute w-12 h-12 text-gray-400 dark:text-textDark -left-1"
+                                            fill="currentColor"
+                                            viewBox="0 0 20 20"
+                                            xmlns="http://www.w3.org/2000/svg"
+                                        >
+                                            <path
+                                                fillRule="evenodd"
+                                                d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z"
+                                                clipRule="evenodd"
+                                            ></path>
+                                        </svg>
+                                    )}
+                                </div>
+                                <span className="ms-3">{currentUser?.fullName || 'Username'}</span>
+                            </Link>
+                        </li>
+                        <li>
+                            <Link
                                 to="/"
                                 className="flex items-center p-2 text-gray-900 rounded-lg dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700 group"
                             >
@@ -52,7 +78,7 @@ function LeftBar() {
                                 <span className="ms-3">Home</span>
                             </Link>
                         </li>
-                        <li>
+                        {/* <li>
                             <button
                                 type="button"
                                 className="flex items-center w-full p-2 text-base text-gray-900 transition duration-75 rounded-lg group hover:bg-gray-100 dark:text-white dark:hover:bg-gray-700"
@@ -187,30 +213,7 @@ function LeftBar() {
                                 </svg>
                                 <span className="flex-1 ms-3 whitespace-nowrap">Products</span>
                             </a>
-                        </li>
-                        <li>
-                            <a
-                                href="#"
-                                className="flex items-center p-2 text-gray-900 rounded-lg dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700 group"
-                            >
-                                <svg
-                                    className="flex-shrink-0 w-5 h-5 text-gray-500 transition duration-75 dark:text-gray-400 group-hover:text-gray-900 dark:group-hover:text-white"
-                                    aria-hidden="true"
-                                    xmlns="http://www.w3.org/2000/svg"
-                                    fill="none"
-                                    viewBox="0 0 18 16"
-                                >
-                                    <path
-                                        stroke="currentColor"
-                                        stroke-linecap="round"
-                                        stroke-linejoin="round"
-                                        stroke-width="2"
-                                        d="M1 8h11m0 0L8 4m4 4-4 4m4-11h3a2 2 0 0 1 2 2v10a2 2 0 0 1-2 2h-3"
-                                    />
-                                </svg>
-                                <span className="flex-1 ms-3 whitespace-nowrap">Sign In</span>
-                            </a>
-                        </li>
+                        </li> */}
                         <li>
                             <a
                                 href="#"

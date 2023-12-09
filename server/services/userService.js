@@ -251,6 +251,7 @@ const getUser = (userId) =>
                         'passwordResetExprides',
                         'passwordResetToken',
                         'refreshToken',
+                        'interestedUsers',
                     ],
                 },
             });

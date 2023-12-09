@@ -10,7 +10,7 @@ module.exports = (sequelize, DataTypes) => {
          */
         static associate(models) {
             // define association here
-            OrganizationInfo.belongsTo(models.Organization, { foreignKey: 'id', targetKey: 'id' });
+            OrganizationInfo.belongsTo(models.Organization, { foreignKey: 'id', targetKey: 'id', as: 'organization' });
         }
     }
     OrganizationInfo.init(

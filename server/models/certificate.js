@@ -10,8 +10,8 @@ module.exports = (sequelize, DataTypes) => {
          */
         static associate(models) {
             // define association here
-            Certificate.belongsTo(models.User, { foreignKey: 'receiverId', targetKey: 'id' });
-            Certificate.belongsTo(models.Activity, { foreignKey: 'activityId', targetKey: 'id' });
+            Certificate.belongsTo(models.User, { foreignKey: 'receiverId', targetKey: 'id', as: 'receiver' });
+            Certificate.belongsTo(models.Activity, { foreignKey: 'activityId', targetKey: 'id', as: 'activity' });
         }
     }
     Certificate.init(

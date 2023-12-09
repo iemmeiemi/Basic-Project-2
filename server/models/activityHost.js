@@ -10,9 +10,9 @@ module.exports = (sequelize, DataTypes) => {
          */
         static associate(models) {
             // define association here
-            ActivityHost.belongsTo(models.Organization, { foreignKey: 'organizationId', targetKey: 'id' });``
-            ActivityHost.belongsTo(models.User, { foreignKey: 'userId', targetKey: 'id' });
-            ActivityHost.belongsTo(models.Activity, { foreignKey: 'activityId', targetKey: 'id' });
+            ActivityHost.belongsTo(models.Organization, { foreignKey: 'organizationId', targetKey: 'id', as: 'organization' });
+            ActivityHost.belongsTo(models.User, { foreignKey: 'userId', targetKey: 'id', as: 'user' });
+            ActivityHost.belongsTo(models.Activity, { foreignKey: 'activityId', targetKey: 'id', as: 'activity' });
         }
     }
     ActivityHost.init(

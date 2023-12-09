@@ -1,9 +1,47 @@
-import { useContext } from 'react';
+import { useContext, useEffect, useState } from 'react';
+import io from 'socket.io-client';
 
 import { AuthContext } from '~/context/AuthContext';
+import Notification from './components/Notification';
+import { linkSync } from 'fs';
 
 function RightBar() {
     const { currentUser } = useContext(AuthContext);
+    const [notifications, setNotifications]: any = useState([]);
+    const [isShowNotify, setShowNotify] = useState(false);
+    
+    useEffect(() => {
+        const socket = io(process.env.REACT_APP_SERVER_URL || '');
+        socket.on('connect', () => {
+            console.log('Đã kết nối tới server');
+            // Gửi một tin nhắn từ máy khách tới server
+            socket.emit('login', { userId: currentUser.id });
+        });
+
+        socket.on('notificationsStorage', (notifies) => {
+            setNotifications(notifies);
+        });
+
+        socket.on(`notification`, (data) => {
+            console.log('Nhận một thông báo từ server:', data);
+
+            setNotifications((pre: any) => {
+                const notifications = [...pre];
+                notifications.unshift(data);
+                return notifications;
+            });
+        });
+        socket.on('message', (data) => {
+            console.log('Nhận một tin nhắn từ server:', data);
+        });
+
+        socket.on('disconnect', () => {
+            console.log('Đã ngắt kết nối tới server');
+        });
+    }, []);
+
+    console.log(notifications);
+
     return (
         <aside
             id="sidebar-multi-level-sidebar"
@@ -13,7 +51,7 @@ function RightBar() {
             {currentUser && (
                 <div className="h-full px-3 py-4 overflow-y-auto ">
                     <ul className="space-y-2 font-medium">
-                        <li>
+                        {/* <li>
                             <a
                                 href="#"
                                 className="flex items-center p-2 text-gray-900 rounded-lg dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700 group"
@@ -30,26 +68,30 @@ function RightBar() {
                                 </svg>
                                 <span className="ms-3">Dashboard</span>
                             </a>
-                        </li>
+                        </li> */}
                         <li>
                             <button
                                 type="button"
                                 className="flex items-center w-full p-2 text-base text-gray-900 transition duration-75 rounded-lg group hover:bg-gray-100 dark:text-white dark:hover:bg-gray-700"
-                                aria-controls="dropdown-rightbar"
-                                data-collapse-toggle="dropdown-rightbar"
+                                onClick={() => setShowNotify(!isShowNotify)}
                             >
                                 <svg
-                                    className="flex-shrink-0 w-5 h-5 text-gray-500 transition duration-75 group-hover:text-gray-900 dark:text-gray-400 dark:group-hover:text-white"
+                                    className="flex-shrink-0 w-5 h-5 text-gray-500 transition duration-75 dark:text-gray-400 group-hover:text-gray-900 dark:group-hover:text-white"
                                     aria-hidden="true"
                                     xmlns="http://www.w3.org/2000/svg"
                                     fill="currentColor"
-                                    viewBox="0 0 18 21"
+                                    viewBox="0 0 20 20"
                                 >
-                                    <path d="M15 12a1 1 0 0 0 .962-.726l2-7A1 1 0 0 0 17 3H3.77L3.175.745A1 1 0 0 0 2.208 0H1a1 1 0 0 0 0 2h.438l.6 2.255v.019l2 7 .746 2.986A3 3 0 1 0 9 17a2.966 2.966 0 0 0-.184-1h2.368c-.118.32-.18.659-.184 1a3 3 0 1 0 3-3H6.78l-.5-2H15Z" />
+                                    <path d="m17.418 3.623-.018-.008a6.713 6.713 0 0 0-2.4-.569V2h1a1 1 0 1 0 0-2h-2a1 1 0 0 0-1 1v2H9.89A6.977 6.977 0 0 1 12 8v5h-2V8A5 5 0 1 0 0 8v6a1 1 0 0 0 1 1h8v4a1 1 0 0 0 1 1h2a1 1 0 0 0 1-1v-4h6a1 1 0 0 0 1-1V8a5 5 0 0 0-2.582-4.377ZM6 12H4a1 1 0 0 1 0-2h2a1 1 0 0 1 0 2Z" />
                                 </svg>
                                 <span className="flex-1 ms-3 text-left rtl:text-right whitespace-nowrap">
                                     Notification
                                 </span>
+                                {notifications.length > 0 && (
+                                    <span className="bg-red-600 text-white w-6 h-6 rounded-full text-center mr-2">
+                                        {notifications.filter((el: any) => el.isSeen === false).length}
+                                    </span>
+                                )}
                                 <svg
                                     className="w-3 h-3"
                                     aria-hidden="true"
@@ -66,8 +108,22 @@ function RightBar() {
                                     />
                                 </svg>
                             </button>
-                            <ul id="dropdown-rightbar" className="hidden py-2 space-y-2">
-                                <li>
+                            {isShowNotify && (
+                                <ul className="py-2 space-y-2">
+                                    {notifications.length > 0 ? (
+                                        notifications.map((notification: any, i: any) => (
+                                            <li key={i}>
+                                                <Notification data={notification} />
+                                            </li>
+                                        ))
+                                    ) : (
+                                        <li>
+                                            <div className="ml-5 text-text dark:text-textDark opacity-50">
+                                                Not things
+                                            </div>
+                                        </li>
+                                    )}
+                                    {/* <li>
                                     <a
                                         href="#"
                                         className="flex items-center w-full p-2 text-gray-900 transition duration-75 rounded-lg pl-11 group hover:bg-gray-100 dark:text-white dark:hover:bg-gray-700"
@@ -90,10 +146,11 @@ function RightBar() {
                                     >
                                         Invoice
                                     </a>
-                                </li>
-                            </ul>
+                                </li> */}
+                                </ul>
+                            )}
                         </li>
-                        <li>
+                        {/* <li>
                             <a
                                 href="#"
                                 className="flex items-center p-2 text-gray-900 rounded-lg dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700 group"
@@ -208,7 +265,7 @@ function RightBar() {
                                 </svg>
                                 <span className="flex-1 ms-3 whitespace-nowrap">Sign Up</span>
                             </a>
-                        </li>
+                        </li> */}
                     </ul>
                 </div>
             )}

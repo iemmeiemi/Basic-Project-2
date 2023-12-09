@@ -10,8 +10,8 @@ module.exports = (sequelize, DataTypes) => {
          */
         static associate(models) {
             // define association here
-            UserRelationship.belongsTo(models.User, { foreignKey: 'userId1', targetKey: 'id', as: 'User1' });
-            UserRelationship.belongsTo(models.User, { foreignKey: 'userId2', targetKey: 'id', as: 'User2' });
+            UserRelationship.belongsTo(models.User, { foreignKey: 'userId1', targetKey: 'id', as: 'user1' });
+            UserRelationship.belongsTo(models.User, { foreignKey: 'userId2', targetKey: 'id', as: 'user2' });
         }
     }
     UserRelationship.init(

@@ -4,7 +4,7 @@ import { useContext, useEffect, useState } from 'react';
 import { AuthContext } from '~/context/AuthContext';
 import { useMutation } from '@tanstack/react-query';
 import { toast } from 'react-toastify';
-import { editUserAccount } from '~/apis/user.api';
+import * as userApi from '~/apis/user.api';
 
 function EditProfile({ user, setShowEditProfile }: any) {
     const { currentUser } = useContext(AuthContext);
@@ -24,7 +24,7 @@ function EditProfile({ user, setShowEditProfile }: any) {
 
     const { mutate, isLoading, isPending, isError, error, isSuccess, data }: any = useMutation({
         mutationFn: () => {
-            return editUserAccount({ id: currentUser.id, ...inputs });
+            return userApi.editUserAccount({ id: currentUser.id, ...inputs });
         },
     });
 

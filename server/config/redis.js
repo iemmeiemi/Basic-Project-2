@@ -8,6 +8,8 @@ const redis = new Redis({
     db: 0, // Defaults to 0
 });
 
+global.__redis = redis;
+
 redis.on('error', (err) => console.log(err));
 redis.on('connect', (err) => {
     if (err) console.log(err);

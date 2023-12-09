@@ -3,7 +3,8 @@ import { useContext, useEffect, useState } from 'react';
 import { Link, useParams } from 'react-router-dom';
 import { toast } from 'react-toastify';
 
-import { getUserAccount, getCheckUserRela, listUserFriends } from '~/apis/user.api';
+import * as userApi from '~/apis/user.api';
+import * as postApi from '~/apis/post.api';
 import EditProfile from './components/EditProfile';
 import ViewAllFriends from './components/ViewAllFriends';
 import { AuthContext } from '~/context/AuthContext';
@@ -15,10 +16,12 @@ import AcceptFriendBtn from './components/AcceptFriendBtn';
 import DeclineFriendBtn from './components/DeclineFriendBtn';
 import UnFriendBtn from './components/UnFriendBtn';
 import { User } from '~/types/user.type';
+import Post from '~/components/components/Post';
 
 function Profile() {
     const { currentUser } = useContext(AuthContext);
     const [user, setUser]: any = useState({});
+    const [postsUser, setPostsUser]: any = useState([]);
     const [userRela, setUserRela]: any = useState({});
     const [friendsList, setFriendsList]: any = useState([]);
     const [showEditProfile, setShowEditProfile] = useState(false);
@@ -28,7 +31,7 @@ function Profile() {
     // get user info
     const { mutate, isLoading, isPending, isError, error, isSuccess, data }: any = useMutation({
         mutationFn: () => {
-            return getUserAccount(userId);
+            return userApi.getUserAccount(userId);
         },
     });
 
@@ -44,7 +47,7 @@ function Profile() {
     // Check relationship: friend-follow
     const checkRelationship: any = useMutation({
         mutationFn: () => {
-            return getCheckUserRela(userId);
+            return userApi.getCheckUserRela(userId);
         },
     });
 
@@ -68,7 +71,7 @@ function Profile() {
     //Lấy danh sách bạn bè của user
     const listFriends: any = useMutation({
         mutationFn: () => {
-            return listUserFriends({ userId, size: 6 });
+            return userApi.listUserFriends({ userId, size: 6 });
         },
     });
 
@@ -87,13 +90,34 @@ function Profile() {
             console.log(listFriends.data.data.mes);
         }
     }, [listFriends.isError, listFriends.isSuccess]);
+    // Lấy danh sách post của User
+    const posts: any = useMutation({
+        mutationFn: () => {
+            return currentUser ? postApi.getAllPostOfUser({ userId }) : postApi.getAllPostOfUserByPublish({ userId });
+        },
+    });
+
+    useEffect(() => {
+        posts.isError && console.log(posts.error);
+        posts.isError &&
+            posts.error?.response?.data.mes &&
+            toast.error(posts.error?.response?.data.mes, { autoClose: false });
+        posts.isError && !posts.error?.response?.data.mes && toast.error(posts.error.message, { autoClose: false });
+
+        if (posts.isSuccess && posts.data.data.success) setPostsUser(posts.data.data.data);
+        if (posts.isSuccess && !posts.data.data.success) {
+            setPostsUser([]);
+            console.log(posts.data.data.mes);
+        }
+    }, [posts.isError, posts.isSuccess]);
 
     // Gọi api lần đầu
     useEffect(() => {
         mutate();
         listFriends.mutate();
-        currentUser.id != userId && checkRelationship.mutate();
-    }, [userId,showEditProfile]);
+        currentUser && currentUser.id != userId && checkRelationship.mutate();
+        posts.mutate();
+    }, [userId, showEditProfile]);
 
     return (
         <>
@@ -248,44 +272,8 @@ function Profile() {
                                     </div>
                                 </div>
                             </div>
-                            <div className="w-full mx-auto my-5 bg-white rounded-lg shadow-md overflow-hidden">
-                                <div className="border-t border-gray-200">
-                                    <div className="border-t border-gray-200">
-                                        <div className="p-4">
-                                            <div className="flex flex-nowrap items-center justify-between">
-                                                <div className="flex items-center gap-4">
-                                                    <img
-                                                        className="w-10 h-10 rounded-full"
-                                                        src="https://scontent.fdad3-6.fna.fbcdn.net/v/t39.30808-6/353448712_1660618624451357_885125259067810930_n.jpg?stp=dst-jpg_s851x315&_nc_cat=100&ccb=1-7&_nc_sid=5f2048&_nc_ohc=vJehIP5ofc4AX-kLl4O&_nc_ht=scontent.fdad3-6.fna&oh=00_AfDSq0zWiMJabULBuP7JYadqQsr6JVMC2YsF_HOSLOEafA&oe=655F536C"
-                                                        alt=""
-                                                    />
-                                                    <div className="font-medium dark:text-white">
-                                                        <div>Rex Dev</div>
-                                                        <div className="text-sm text-gray-500 dark:text-gray-400">
-                                                            2 hours ago
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                                <i className="fa-solid fa-ellipsis cursor-pointer" />
-                                            </div>
-                                            <div className="mt-5">
-                                                <p>Cuộc sống là những ngày đau cột sống.</p>
-                                            </div>
-                                        </div>
-                                        <div className="border-t p-4 flex gap-5 justify-between lg:justify-start">
-                                            <div>
-                                                <i className="fa-regular fa-heart" /> 0 likes
-                                            </div>
-                                            <div>
-                                                <i className="fa-regular fa-comment-dots" /> 0 comments
-                                            </div>
-                                            <div>
-                                                <i className="fa-regular fa-share-from-square" /> share
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
+                            {postsUser.length > 0 &&
+                                postsUser.map((post: any) => <Post key={post.id} user={post.user} post={post} />)}
                         </>
                     )}
                 </div>
