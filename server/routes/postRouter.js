@@ -26,7 +26,21 @@ router.post(
     ]),
     ctrls.createNewPost2,
 );
-router.put('/:id', verifyAccessToken, ctrls.editPost);
+router.put(
+    '/:id',
+    verifyAccessToken,
+    uploader.fields([
+        {
+            name: 'images',
+            maxCount: 4,
+        },
+        {
+            name: 'videos',
+            maxCount: 1,
+        },
+    ]),
+    ctrls.editPost2,
+);
 router.delete('/:id', verifyAccessToken, ctrls.deletePost);
 router.post('/:id', verifyAccessToken, ctrls.restoreDeletePost);
 

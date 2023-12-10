@@ -36,7 +36,8 @@ function Posting() {
 
     const handleUploadFile = (e: any) => {
         const files: any = Array.from(e.target.files);
-        setPostInputs({ ...postInputs, files });
+        if (files.length > 0 && files.length < 5) setPostInputs({ ...postInputs, files });
+        else toast.error('Select up to 4 photos or 1 video!');
     };
     const handleSubmit = () => {
         const { files, ...data } = postInputs;
@@ -55,19 +56,32 @@ function Posting() {
             <div className="">
                 <div className="px-4 py-2">
                     <p className="text-xl text-gray-600 dark:text-textDark">FConnect</p>
-                    <div className="mt-2 grid grid-rows-2 md: grid-cols-2 gap-5 items-center justify-center">
+                    <div className="grid grid-rows-2 grid-cols-5 gap-5 items-center justify-center">
                         <input
                             value={postInputs.caption}
                             onChange={(e) => setPostInputs({ ...postInputs, caption: e.target.value })}
                             type="text"
                             name="caption"
                             id="caption"
-                            className="bg-white bg-opacity-5 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-black dark:bg-opacity-20 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500 col-span-2"
-                            placeholder={`Hi ${currentUser.firstName}! How are you today?`}
+                            className="bg-white bg-opacity-5 border border-gray-300 text-gray-900 sm:text-sm rounded-lg block w-full p-2.5 dark:bg-black dark:bg-opacity-20 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white focus:outline-none focus:ring-0 focus:shadow-none focus:border-gray-600 col-span-3 md:col-span-4"
+                            placeholder={`New caption`}
                             required
                         />
+                        <select
+                            onChange={(e) =>
+                                setPostInputs({ ...postInputs, postViewer: postViewerOptions[+e.target.value] })
+                            }
+                            id="postViewer"
+                            className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500 col-span-2 md:col-span-1"
+                        >
+                            {postViewerOptions.map((el, index) => (
+                                <option key={index} value={index}>
+                                    {el}
+                                </option>
+                            ))}
+                        </select>
                         <input
-                            className="block w-full text-sm text-gray-900 border border-gray-300 rounded-lg cursor-pointer bg-gray-50 dark:text-gray-400 focus:outline-none dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400"
+                            className="block w-full text-sm text-gray-900 border border-gray-300 rounded-lg cursor-pointer bg-gray-50 dark:text-gray-400 focus:outline-none dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 col-span-3"
                             id="postFile"
                             name="postFile"
                             type="file"
@@ -78,7 +92,8 @@ function Posting() {
                         <button
                             onClick={handleSubmit}
                             type="button"
-                            className="text-white bg-blue-600 focus:bg-blue-800 font-medium rounded-lg text-sm px-5 py-2.5 me-2 dark:bg-blue-600 dark:hover:bg-blue-700 focus:outline-none"
+                            className="text-white bg-blue-600 focus:bg-blue-800 font-medium rounded-lg text-sm px-5 py-2.5 dark:bg-blue-600 dark:hover:bg-blue-700 focus:outline-none
+                            col-span-2"
                         >
                             Posting
                         </button>

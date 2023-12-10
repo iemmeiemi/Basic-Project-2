@@ -425,15 +425,15 @@ const deletePost = (pid, userID) =>
             });
             console.log(post);
 
-            const { userId } = post;
+            const { userId } = post.dataValues;
             if (userId !== userID) {
                 throw new Error('User does not have author to Delete this Post!');
             } else {
-                const response = await Post.destroy(post);
+                const response = await Post.destroy({ where: { id: post.dataValues.id } });
 
                 resolve({
-                    success: response,
-                    mess: response !== 0 ? 'Post Deleted!' : 'Cannot delete the post!',
+                    success: !!response,
+                    mes: response !== 0 ? 'Post Deleted!' : 'Cannot delete the post!',
                 });
             }
         } catch (error) {

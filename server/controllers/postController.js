@@ -106,6 +106,27 @@ const editPost = asyncHandler(async (req, res) => {
     return res.status(200).json(response);
 });
 
+const editPost2 = asyncHandler(async (req, res) => {
+    const userId = req.user.id;
+    const { caption, hashTag, postViewer } = req.body;
+    const shareFrom = req.body.shareFrom === 'null' ? null : req.body.shareFrom;
+    if (Object.keys(req.files).length === 0 && !req.videos && !caption) throw new Error('Please write caption!');
+    if (!postViewer) throw new Error('Missing inputs!');
+    let images, videos;
+    if (req.files.images) images = req.files.images.map((el) => 'uploads/' + el.filename);
+    if (req.files.videos) videos = req.files.videos.map((el) => 'uploads/' + el.filename);
+    const response = await services.editPost(req.params.id, {
+        userId,
+        caption,
+        hashTag,
+        postViewer,
+        shareFrom,
+        images,
+        videos,
+    });
+    return res.status(200).json(response);
+});
+
 /************ Delete *************/
 //soft delete a post, user can restore
 const deletePost = asyncHandler(async (req, res) => {
@@ -122,6 +143,7 @@ module.exports = {
     createNewPost,
     createNewPost2,
     editPost,
+    editPost2,
     deletePost,
     restoreDeletePost,
 };

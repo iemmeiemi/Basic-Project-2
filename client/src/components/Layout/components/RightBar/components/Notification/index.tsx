@@ -11,7 +11,7 @@ function Notification({ data }: any) {
     const handleClick = () => {
         const socket = io(process.env.REACT_APP_SERVER_URL || '');
         socket.emit('seenNotification', notify)
-        // setNotify({ ...notify, isSeen: true });
+        setNotify({ ...notify, isSeen: true });
     };
     console.log(notify);
 

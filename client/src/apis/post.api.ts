@@ -35,3 +35,22 @@ export const getAllPostNewAndInterest = ({ userId, page = 0, size }: any) => {
         },
     });
 };
+
+export const editPost = (postId: any, formData: any) => {
+    const accessToken = localStorage.getItem('accessToken') || 'null';
+    return http.put<any>(`api/post/${postId}`, formData, {
+        headers: {
+            'Content-Type': 'multipart/form-data',
+            Authorization: `Bearer ${JSON.parse(accessToken)}`,
+        },
+    });
+};
+
+export const deletePost = (postId: any) => {
+    const accessToken = localStorage.getItem('accessToken') || 'null';
+    return http.delete<any>(`api/post/${postId}`, {
+        headers: {
+            Authorization: `Bearer ${JSON.parse(accessToken)}`,
+        },
+    });
+};

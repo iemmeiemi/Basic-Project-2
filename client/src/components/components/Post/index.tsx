@@ -1,7 +1,18 @@
+import { useContext, useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
+import { useMutation } from '@tanstack/react-query';
+import { toast } from 'react-toastify';
+import moment from 'moment';
 
-const moment = require('moment');
+import EditPost from '../EditPost';
+import * as postApi from '~/apis/post.api';
+import { log } from 'console';
+import { AuthContext } from '~/context/AuthContext';
+
 function Post({ user, post }: any) {
+    const { currentUser } = useContext(AuthContext);
+    const [isShowMenu, setShowMenu] = useState(false);
+    const [isShowEdit, setShowEdit] = useState(false);
     const inputTime = post.createdAt;
     const currentTime = moment();
     const inputMoment = moment(inputTime);
@@ -24,8 +35,33 @@ function Post({ user, post }: any) {
         post.time = formattedDate;
     }
 
+    //posting a post
+    const deletePost: any = useMutation({
+        mutationFn: () => {
+            return postApi.deletePost(post.id);
+        },
+    });
+
+    useEffect(() => {
+        deletePost.isError && console.log(deletePost.error);
+        deletePost.isError && deletePost.error?.response?.data.mes && toast.error(deletePost.error?.response?.data.mes);
+        deletePost.isError && !deletePost.error?.response?.data.mes && toast.error(deletePost.error.message);
+
+        if (deletePost.isSuccess && deletePost.data.data.success) {
+            toast.success(deletePost.data.data.mes);
+            window.location.reload();
+        }
+        if (deletePost.isSuccess && !deletePost.data.data.success) {
+            toast.error(deletePost.data.data.mes);
+        }
+    }, [deletePost.isError, deletePost.isSuccess]);
+    console.log(deletePost.data?.data);
+
     return (
-        <div className="w-full mx-auto my-5 bg-white dark:bg-opacity-10 rounded-lg shadow-md overflow-hidden">
+        <div
+            onClick={() => isShowMenu && setShowMenu(false)}
+            className="w-full mx-auto my-5 bg-white dark:bg-opacity-10 rounded-lg shadow-md overflow-hidden"
+        >
             <div className="border-t border-gray-200 dark:border-gray-600 dark:text-textDark">
                 <div className="border-t border-gray-200 dark:border-gray-600">
                     <div className="p-4">
@@ -46,16 +82,39 @@ function Post({ user, post }: any) {
                                     <div className="text-sm text-gray-500 dark:text-gray-400">{`${post.time} | ${post.postViewer}`}</div>
                                 </div>
                             </div>
-                            <i className="fa-solid fa-ellipsis cursor-pointer" />
+                            {currentUser.id == post.userId && (
+                                <div className="relative">
+                                    <i
+                                        onClick={() => setShowMenu(!isShowMenu)}
+                                        className="fa-solid fa-ellipsis cursor-pointer"
+                                    />
+                                    {isShowMenu && (
+                                        <ul className="absolute right-full p-2 bg-white dark:bg-[#424242] rounded">
+                                            <li
+                                                onClick={() => {
+                                                    setShowEdit(true);
+                                                }}
+                                                className="cursor-pointer"
+                                            >
+                                                edit
+                                            </li>
+                                            <li onClick={deletePost.mutate} className="cursor-pointer">
+                                                delete
+                                            </li>
+                                        </ul>
+                                    )}
+                                </div>
+                            )}
                         </div>
                         <div className="mt-5">
-                            <p>{post.caption}</p>
-                            <div className={`mt-2 grid gap-1 grid-cols-2 grid-rows-${Math.round(post.images.length / 2)}`}>
+                            {isShowEdit && <EditPost showEditPost={setShowEdit} post={post} />}
+                            <p className="mt-2">{post.caption}</p>
+                            <div className={`mt-2 grid auto-rows-auto gap-1 grid-cols-2`}>
                                 {post.images.length > 0 &&
                                     post.images.map((image: any) => (
                                         <img
                                             key={image}
-                                            className="rounded object-cover"
+                                            className="rounded object-cover max-h-60"
                                             src={process.env.REACT_APP_SERVER_URL + image}
                                         />
                                     ))}
