@@ -50,6 +50,24 @@ const getDeletedPost = asyncHandler(async (req, res) => {
     return res.status(200).json(response);
 });
 
+// Likes
+const likeByUser = asyncHandler(async (req, res) => {
+    const userId = req.user.id;
+    const {postId} = req.body;
+    if (!postId) throw new Error('Missing inputs');
+    const response = await services.likeByUser({ userId, postId });
+    return res.status(200).json(response);
+});
+
+const unlikeByUser = asyncHandler(async (req, res) => {
+    const userId = req.user.id;
+    const {postId} = req.body;
+    if (!postId) throw new Error('Missing inputs');
+    const response = await services.unlikeByUser({ userId, postId });
+    return res.status(200).json(response);
+});
+
+
 /**************** Create & Restore ******************/
 const createNewPost = asyncHandler(async (req, res) => {
     if (Object.keys(req.body).length === 0 || req.body[0] == null) {
@@ -74,8 +92,9 @@ const createNewPost = asyncHandler(async (req, res) => {
 const createNewPost2 = asyncHandler(async (req, res) => {
     const userId = req.user.id;
     const { caption, hashTag, postViewer } = req.body;
+    console.log(caption);
     const shareFrom = req.body.shareFrom === 'null' ? null : req.body.shareFrom;
-    if (Object.keys(req.files).length === 0 && !req.videos && !caption) throw new Error('Please write caption!');
+    if (Object.keys(req.files).length === 0 && !req.files.videos && !caption) throw new Error('Please write caption!');
     if (!postViewer) throw new Error('Missing inputs!');
     let images, videos;
     if (req.files.images) images = req.files.images.map((el) => 'uploads/' + el.filename);
@@ -140,6 +159,8 @@ module.exports = {
     getAllPostNewAndInterest,
     getAPost,
     getDeletedPost,
+    likeByUser,
+    unlikeByUser,
     createNewPost,
     createNewPost2,
     editPost,

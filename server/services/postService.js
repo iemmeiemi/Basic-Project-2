@@ -53,6 +53,20 @@ const getAllPostOfUser2 = ({ userId, pagination }) =>
                     {
                         model: Post,
                         as: 'shareFromPost',
+                        include: {
+                            model: User,
+                            as: 'user',
+                            attributes: {
+                                exclude: [
+                                    'password',
+                                    'passwordChangedAt',
+                                    'passwordResetExprides',
+                                    'passwordResetToken',
+                                    'refreshToken',
+                                    'interestedUsers',
+                                ],
+                            },
+                        },
                     },
                 ],
                 where: {
@@ -110,6 +124,20 @@ const getAllPostOfUserByOther = ({ userId, otherId, pagination }) =>
                     {
                         model: Post,
                         as: 'shareFromPost',
+                        include: {
+                            model: User,
+                            as: 'user',
+                            attributes: {
+                                exclude: [
+                                    'password',
+                                    'passwordChangedAt',
+                                    'passwordResetExprides',
+                                    'passwordResetToken',
+                                    'refreshToken',
+                                    'interestedUsers',
+                                ],
+                            },
+                        },
                     },
                 ],
                 where: {
@@ -152,6 +180,20 @@ const getAllPostOfUserByPublish = ({ userId, pagination }) =>
                     {
                         model: Post,
                         as: 'shareFromPost',
+                        include: {
+                            model: User,
+                            as: 'user',
+                            attributes: {
+                                exclude: [
+                                    'password',
+                                    'passwordChangedAt',
+                                    'passwordResetExprides',
+                                    'passwordResetToken',
+                                    'refreshToken',
+                                    'interestedUsers',
+                                ],
+                            },
+                        },
                     },
                 ],
                 where: {
@@ -269,24 +311,26 @@ const getAllPostNewAndInterest = ({ userId, otherId, pagination }) =>
 
 const getAllPostNewAndInterest2 = ({ userId, otherId, pagination }) =>
     new Promise(async (resolve, reject) => {
+        //         ,
+        //   "Posts"."caption",
+        //   "Posts"."hashTag",
+        //   "Posts"."postViewer",
+        //   "Posts"."images",
+        //   "Posts"."videos",
+        //   "Posts"."likes",
+        //   "Posts"."shareFrom",
+        //   "Posts"."createdAt",
+        //   "Posts"."updatedAt",
+        //   "Posts"."deletedAt",
+        // JSON_BUILD_OBJECT('id', "Posts"."userId", 'fullName', "Users"."fullName", 'avatar', "Users"."avatar") AS user
         try {
             const query = `
   SELECT 
-  "Posts"."id",
-  "Posts"."caption",
-  "Posts"."hashTag",
-  "Posts"."postViewer",
-  "Posts"."images",
-  "Posts"."videos",
-  "Posts"."likes",
-  "Posts"."shareFrom",
-  "Posts"."createdAt",
-  "Posts"."updatedAt",
-  JSON_BUILD_OBJECT('id', "Posts"."userId", 'fullName', "Users"."fullName", 'avatar', "Users"."avatar") AS user
+  "Posts"."id"
   FROM "UserRelationships" AS "UserRela"
   INNER JOIN "Posts"
-  ON 
-  "Posts"."userId" != :userId 
+  ON ("Posts"."deletedAt" IS NULL)
+  AND "Posts"."userId" != :userId 
   AND ("Posts"."userId" = "UserRela"."userId1"
   OR "Posts"."userId" = "UserRela"."userId2")
   INNER JOIN "Users"
@@ -309,10 +353,52 @@ const getAllPostNewAndInterest2 = ({ userId, otherId, pagination }) =>
                 type: QueryTypes.SELECT,
                 replacements: { userId, ...pagination },
             });
+            const postIds = response.map((el) => el.id);
+            const response2 = await Post.findAll({
+                include: [
+                    {
+                        model: User,
+                        as: 'user',
+                        attributes: {
+                            exclude: [
+                                'password',
+                                'passwordChangedAt',
+                                'passwordResetExprides',
+                                'passwordResetToken',
+                                'refreshToken',
+                                'interestedUsers',
+                            ],
+                        },
+                    },
+                    {
+                        model: Post,
+                        as: 'shareFromPost',
+                        include: {
+                            model: User,
+                            as: 'user',
+                            attributes: {
+                                exclude: [
+                                    'password',
+                                    'passwordChangedAt',
+                                    'passwordResetExprides',
+                                    'passwordResetToken',
+                                    'refreshToken',
+                                    'interestedUsers',
+                                ],
+                            },
+                        },
+                    },
+                ],
+                where: {
+                    id: postIds,
+                },
+                order: [['createdAt', 'DESC']],
+            });
+            console.log(response2[0].dataValues.shareFromPost);
             resolve({
-                success: response.length > 0,
-                mes: response.length > 0 ? 'Successfully get posts' : 'Cannot get the data!',
-                data: response,
+                success: response2.length > 0,
+                mes: response2.length > 0 ? 'Successfully get posts' : 'Cannot get the data!',
+                data: response2,
             });
         } catch (error) {
             reject(error);
@@ -347,6 +433,95 @@ const getDeletedPost = (iduser) =>
                 success: !!response,
                 mes: response ? '' : 'There is no deleted Post!',
                 data: response.map((post) => post.dataValues),
+            });
+        } catch (error) {
+            reject(error);
+        }
+    });
+// Likes
+const likeByUser = ({ userId, postId }) =>
+    new Promise(async (resolve, reject) => {
+        try {
+            const response = await Post.findByPk(postId).then(async (post) => {
+                const currentLikes = post.likes;
+                if (post && !currentLikes.includes(userId)) {
+                    // Thêm userId vào mảng "likes"
+                    currentLikes.push(userId);
+
+                    // __redis.zadd(`likes:${post.id}`, -Date.now(), userId, (error, reply) => {
+                    //     if (error) {
+                    //         console.error(error);
+                    //     } else {
+                    //         console.log('Likes đã được thêm vào Sorted Set.');
+                    //     }
+                    // });
+
+                    // __redis.zrange(`likes:${post.id}`, 0, -1, (error, reply) => {
+                    //     if (error) {
+                    //         console.error(error);
+                    //     } else {
+                    //         const likes = reply;
+                    //         console.log('likes');
+                    //         console.log(likes);
+                    //     }
+                    // });
+                    // Lưu bài viết đã được cập nhật
+                    const response = await Post.update({ likes: currentLikes }, { where: { id: post.id } });
+                    if (response) return currentLikes;
+                    else throw new Error('Cannot like!');
+                } else {
+                    throw new Error('Cannot like!');
+                }
+            });
+            // const response2 = await Post.update({ $push: { likes: userId } }, { where: { id: postId } });
+            resolve({
+                success: !!response,
+                mes: response ? 'Liked' : 'Can not like this post!',
+                data: response,
+            });
+        } catch (error) {
+            reject(error);
+        }
+    });
+
+const unlikeByUser = ({ userId, postId }) =>
+    new Promise(async (resolve, reject) => {
+        try {
+            const response = await Post.findByPk(postId).then(async (post) => {
+                let currentLikes = post.likes;
+                if (post && currentLikes.includes(userId)) {
+                    // Xóa userId vào mảng "likes"
+                    currentLikes = currentLikes.filter((id) => id !== userId);
+
+                    // __redis.zrem(`likes:${post.id}`, userId, (error, reply) => {
+                    //     if (error) {
+                    //         console.error(error);
+                    //     } else {
+                    //         console.log('Phần tử đã được xóa khỏi Sorted Set.');
+                    //     }
+                    // });
+
+                    // __redis.zrange(`likes:${post.id}`, 0, -1, (error, reply) => {
+                    //     if (error) {
+                    //         console.error(error);
+                    //     } else {
+                    //         const likes = reply;
+                    //         console.log('likes');
+                    //         console.log(likes);
+                    //     }
+                    // });
+                    // Lưu bài viết đã được cập nhật
+                    const response = await Post.update({ likes: currentLikes }, { where: { id: post.id } });
+                    if (response) return currentLikes;
+                    else throw new Error('Cannot unlike!');
+                } else {
+                    throw new Error('Cannot unlike!');
+                }
+            });
+            resolve({
+                success: !!response,
+                mes: response ? 'Unliked' : 'Can not unlike this post!',
+                data: response,
             });
         } catch (error) {
             reject(error);
@@ -451,6 +626,8 @@ module.exports = {
     getAllPostNewAndInterest2,
     getAPost,
     getDeletedPost,
+    likeByUser,
+    unlikeByUser,
     editPost,
     deletePost,
     restoreDeletePost,

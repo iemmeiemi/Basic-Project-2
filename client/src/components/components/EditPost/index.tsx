@@ -14,7 +14,7 @@ function EditPost({ showEditPost, post }: any) {
         hasTag: '',
         postViewer: postViewerOptions[0],
         files: [],
-        shareFrom: null,
+        shareFrom: post?.shareFromPost?.id || null,
     });
     //posting a post
     const editPost: any = useMutation({
@@ -78,7 +78,7 @@ function EditPost({ showEditPost, post }: any) {
                             </option>
                         ))}
                     </select>
-                    <input
+                    {!post.shareFrom && <input
                         className="block w-full text-sm text-gray-900 border border-gray-300 rounded-lg cursor-pointer bg-gray-50 dark:text-gray-400 focus:outline-none dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 col-span-3"
                         id="postFile"
                         name="postFile"
@@ -86,7 +86,7 @@ function EditPost({ showEditPost, post }: any) {
                         accept=".jpg, .jpeg, .png, .mp4"
                         multiple
                         onChange={(e) => handleUploadFile(e)}
-                    />
+                    />}
                     <button
                         onClick={() => showEditPost(false)}
                         type="button"

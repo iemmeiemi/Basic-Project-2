@@ -24,3 +24,21 @@ Content-Type: application/json
 ###
 GET http://localhost:5000/api/post/all-post-new-and-interest?userId=1701697707
 Content-Type: application/json
+###
+PUT http://localhost:5000/api/post/like
+Content-Type: application/json
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MTcwMTY5NzcwNywiZW1haWwiOiJyb25neGFuaGJpZGllbkBnbWFpbC5jb20iLCJyb2xlIjoidXNlciIsImlhdCI6MTcwMjEwOTcwNiwiZXhwIjoxNzAyMjgyNTA2fQ.dW02o7r1h8VaqVH2DGVorcB123P69DlcQ2wWGQNwb-8
+
+{
+  "postId": "d80c8b0f-b404-4c5a-8c29-0a91e5b14a20"
+}
+
+###
+PUT http://localhost:5000/api/post/unlike
+Content-Type: application/json
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MTcwMTY5NzcwNywiZW1haWwiOiJyb25neGFuaGJpZGllbkBnbWFpbC5jb20iLCJyb2xlIjoidXNlciIsImlhdCI6MTcwMjEwOTcwNiwiZXhwIjoxNzAyMjgyNTA2fQ.dW02o7r1h8VaqVH2DGVorcB123P69DlcQ2wWGQNwb-8
+
+{
+  "postId": "d80c8b0f-b404-4c5a-8c29-0a91e5b14a20"
+}
+

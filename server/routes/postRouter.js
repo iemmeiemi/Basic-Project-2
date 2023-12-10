@@ -10,6 +10,9 @@ router.get('/all-post-new-and-interest', verifyAccessToken, ctrls.getAllPostNewA
 router.get('/get-deleted-post', verifyAccessToken, ctrls.getDeletedPost);
 router.get('/:id', ctrls.getAPost); //chỉnh lại slug
 
+// Likes
+router.put('/like', verifyAccessToken, ctrls.likeByUser);
+router.put('/unlike', verifyAccessToken, ctrls.unlikeByUser);
 //CRUD
 router.post(
     '/create',

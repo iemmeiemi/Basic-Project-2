@@ -36,6 +36,32 @@ export const getAllPostNewAndInterest = ({ userId, page = 0, size }: any) => {
     });
 };
 
+export const likeByUser = (postId: any) => {
+    const accessToken = localStorage.getItem('accessToken') || 'null';
+    return http.put<any>(
+        `api/post/like`,
+        { postId },
+        {
+            headers: {
+                Authorization: `Bearer ${JSON.parse(accessToken)}`,
+            },
+        },
+    );
+};
+
+export const unlikeByUser = (postId: any) => {
+    const accessToken = localStorage.getItem('accessToken') || 'null';
+    return http.put<any>(
+        `api/post/unlike`,
+        { postId },
+        {
+            headers: {
+                Authorization: `Bearer ${JSON.parse(accessToken)}`,
+            },
+        },
+    );
+};
+
 export const editPost = (postId: any, formData: any) => {
     const accessToken = localStorage.getItem('accessToken') || 'null';
     return http.put<any>(`api/post/${postId}`, formData, {
